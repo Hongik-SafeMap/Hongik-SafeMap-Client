@@ -11,6 +11,8 @@ export const colors = {
   gray900: '#0d0d0d',
   white: '#ffffff',
   black: '#000000',
+  mainBlue: '#4174D9',
+  subBlue: '#D9E5FF',
 };
 
 export const font = {

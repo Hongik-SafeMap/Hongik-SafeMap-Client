@@ -41,8 +41,14 @@ const GlobalStyle = createGlobalStyle`
     border: none;
   }
 
+  input {
+    outline: none;
+    border: none;
+  }
+
   input:focus {
     outline: none;
+    border: none;
   }
 
   input {
