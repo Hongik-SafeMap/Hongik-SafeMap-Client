@@ -2,7 +2,6 @@ import { styled } from 'styled-components';
 import Kakao from '@/assets/icons/KakaoLogin.svg';
 import Naver from '@/assets/icons/NaverLogin.png';
 import { Button } from '@/components/common/Button';
-import { InputBox } from '@/components/common/InputBox';
 import { useHandleNavigate } from '@/hooks/useHandleNavigate';
 
 const LoginPage = () => {
@@ -13,8 +12,8 @@ const LoginPage = () => {
       <div className="logo">SafeMap</div>
 
       <LoginWrapper>
-        <InputBox title="아이디" placeholder="아이디" />
-        <InputBox title="비밀번호" placeholder="비밀번호" type="password" />
+        <Input placeholder="아이디를 입력하세요" />
+        <Input placeholder="비밀번호를 입력하세요" type="password" />
         <Button variant="subBlue" height="48px">
           로그인
         </Button>
@@ -105,5 +104,28 @@ const SocialWrapper = styled.div`
   img {
     width: 50px;
     height: 50px;
+  }
+`;
+
+const Input = styled.input`
+  box-sizing: border-box;
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  // background: ${({ theme }) => theme.colors.gray50};
+  border: 1px solid ${({ theme }) => theme.colors.gray100};
+
+  color: ${({ theme }) => theme.colors.gray900};
+  font-size: ${({ theme }) => theme.font.fontSize.text16};
+  font-weight: ${({ theme }) => theme.font.fontWeight.medium};
+
+  &::placeholder {
+    color: ${({ theme }) => theme.colors.gray300};
+  }
+
+  &:focus {
+    outline: none;
+    caret-color: ${({ theme }) => theme.colors.mainBlue};
+    border: 1px solid ${({ theme }) => theme.colors.mainBlue};
   }
 `;
