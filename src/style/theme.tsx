@@ -13,6 +13,8 @@ export const colors = {
   black: '#000000',
   mainBlue: '#4174D9',
   subBlue: '#D9E5FF',
+  mainRed: '#D94141',
+  subRed: '#FFD9D9',
 };
 
 export const font = {
