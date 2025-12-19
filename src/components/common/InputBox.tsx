@@ -13,23 +13,23 @@ export const InputBox = ({
   ...props
 }: InputBoxProps) => {
   return (
-    <Container>
-      <div className="title">{title}</div>
+    <InputWrapper>
+      <div className="input">{title}</div>
       <Input placeholder={placeholder} value={value} {...props} />
-    </Container>
+    </InputWrapper>
   );
 };
 
-const Container = styled.div`
+const InputWrapper = styled.div`
   width: 100%;
 
   display: flex;
   flex-direction: column;
   gap: 8px;
 
-  .title {
+  .input {
     color: ${({ theme }) => theme.colors.gray900};
-    font-size: ${({ theme }) => theme.font.fontSize.text16};
+    font-size: ${({ theme }) => theme.font.fontSize.text14};
     font-weight: ${({ theme }) => theme.font.fontWeight.semibold};
   }
 `;
@@ -37,12 +37,13 @@ const Container = styled.div`
 const Input = styled.input`
   box-sizing: border-box;
   width: 100%;
-  padding: 16px;
-  border-radius: 12px;
+  height: 32px;
+  padding: 0px 12px;
+  border-radius: 8px;
   background: ${({ theme }) => theme.colors.gray50};
 
   color: ${({ theme }) => theme.colors.gray900};
-  font-size: ${({ theme }) => theme.font.fontSize.text16};
+  font-size: ${({ theme }) => theme.font.fontSize.text14};
   font-weight: ${({ theme }) => theme.font.fontWeight.medium};
 
   &::placeholder {

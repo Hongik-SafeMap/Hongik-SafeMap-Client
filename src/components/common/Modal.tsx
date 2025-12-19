@@ -1,23 +1,5 @@
 import styled from 'styled-components';
 
-const ModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 200;
-`;
-
-const ModalWrapper = styled.div`
-  border-radius: 12px;
-  position: relative;
-`;
-
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -35,3 +17,21 @@ export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
     </ModalOverlay>
   );
 };
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 200;
+`;
+
+const ModalWrapper = styled.div`
+  border-radius: 12px;
+  position: relative;
+`;

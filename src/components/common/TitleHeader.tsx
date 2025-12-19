@@ -1,31 +1,37 @@
 import styled from 'styled-components';
 
-interface NavbarProps {
-  left?: React.ReactNode;
-  center?: React.ReactNode;
+interface TitleHeaderProps {
+  mainTitle: string;
+  subTitle: string;
   right?: React.ReactNode;
 }
 
-export const NavBar = ({ left, center, right }: NavbarProps) => {
+export const TitleHeader = ({
+  mainTitle,
+  subTitle,
+  right,
+}: TitleHeaderProps) => {
   return (
-    <NavbarWrapper>
-      <NavLeft>{left}</NavLeft>
-      <NavCenter>{center}</NavCenter>
-      <NavRight>{right}</NavRight>
-    </NavbarWrapper>
+    <TitleHeaderWrapper>
+      <TitleHeaderLeft>
+        <div className="main">{mainTitle}</div>
+        <div className="sub">{subTitle}</div>
+      </TitleHeaderLeft>
+      <TitleHeaderRight>{right}</TitleHeaderRight>
+    </TitleHeaderWrapper>
   );
 };
 
-const NavbarWrapper = styled.div`
+const TitleHeaderWrapper = styled.div`
   background: ${({ theme }) => theme.colors.white};
   width: 100%;
   height: 56px;
   display: flex;
+  justify-content: space-between;
   align-items: center;
 `;
 
-const NavLeft = styled.div`
-  flex: 1;
+const TitleHeaderLeft = styled.div`
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -44,14 +50,7 @@ const NavLeft = styled.div`
   }
 `;
 
-const NavCenter = styled.div`
-  flex: 1;
-  display: flex;
-  justify-content: center;
-`;
-
-const NavRight = styled.div`
-  flex: 1;
+const TitleHeaderRight = styled.div`
   display: flex;
   justify-content: flex-end;
 `;
