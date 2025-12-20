@@ -5,17 +5,19 @@ import { BrowserRouter } from 'react-router-dom';
 import GlobalStyle from '@/style/GlobalStyle.tsx';
 import { theme } from '@/style/theme.tsx';
 import App from '@/App.tsx';
-import { ModeProvider } from '@/context/ModeContext';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ThemeProvider theme={theme}>
-      <GlobalStyle />
-      <BrowserRouter>
-        <ModeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider theme={theme}>
+        <GlobalStyle />
+        <BrowserRouter>
           <App />
-        </ModeProvider>
-      </BrowserRouter>
-    </ThemeProvider>
+        </BrowserRouter>
+      </ThemeProvider>
+    </QueryClientProvider>
   </StrictMode>,
 );
