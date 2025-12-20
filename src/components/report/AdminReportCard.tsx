@@ -1,17 +1,22 @@
 import styled from 'styled-components';
 import { Tag } from '@/components/common/Tag';
+import type { AdminReportContent } from '@/types/Report';
 
-export const AdminReportCard = () => {
+interface AdminReportCardProps {
+  report: AdminReportContent;
+}
+
+export const AdminReportCard = ({ report }: AdminReportCardProps) => {
   return (
     <Container>
       <div className="top">
-        <div className="number">제보 #1</div>
+        <div className="number">제보 #{report.reportId}</div>
         <Tag variant="red">재난종류</Tag>
       </div>
 
       <div className="title">산사태로 인해 도로가 차단되었습니다.</div>
 
-      <ReviewWrapper>
+      {/* <ReviewWrapper>
         <div className="review">
           <div className="option">도움됨</div>
           <div className="count">30</div>
@@ -28,7 +33,7 @@ export const AdminReportCard = () => {
           <div className="option">허위</div>
           <div className="count">0</div>
         </div>
-      </ReviewWrapper>
+      </ReviewWrapper> */}
     </Container>
   );
 };
@@ -58,30 +63,30 @@ const Container = styled.div`
   }
 `;
 
-const ReviewWrapper = styled.div`
-  margin-top: 12px;
-  padding: 8px 12px;
-  display: flex;
-  justify-content: space-between;
-  background: ${({ theme }) => theme.colors.gray50};
-  border-radius: 8px;
+// const ReviewWrapper = styled.div`
+//   margin-top: 12px;
+//   padding: 8px 12px;
+//   display: flex;
+//   justify-content: space-between;
+//   background: ${({ theme }) => theme.colors.gray50};
+//   border-radius: 8px;
 
-  .review {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
+//   .review {
+//     width: 100%;
+//     display: flex;
+//     flex-direction: column;
+//     gap: 4px;
+//   }
 
-  .option {
-    color: ${({ theme }) => theme.colors.gray500};
-    font-size: ${({ theme }) => theme.font.fontSize.text12};
-    font-weight: ${({ theme }) => theme.font.fontWeight.medium};
-  }
+//   .option {
+//     color: ${({ theme }) => theme.colors.gray500};
+//     font-size: ${({ theme }) => theme.font.fontSize.text12};
+//     font-weight: ${({ theme }) => theme.font.fontWeight.medium};
+//   }
 
-  .count {
-    color: ${({ theme }) => theme.colors.gray900};
-    font-size: ${({ theme }) => theme.font.fontSize.text16};
-    font-weight: ${({ theme }) => theme.font.fontWeight.medium};
-  }
-`;
+//   .count {
+//     color: ${({ theme }) => theme.colors.gray900};
+//     font-size: ${({ theme }) => theme.font.fontSize.text16};
+//     font-weight: ${({ theme }) => theme.font.fontWeight.medium};
+//   }
+// `;

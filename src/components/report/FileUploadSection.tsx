@@ -145,6 +145,6 @@ const DeletePhoto = styled(Close)`
   cursor: pointer;
 
   position: absolute;
-  top: 5px;
-  right: 5px;
+  top: 6px;
+  right: 4px;
 `;

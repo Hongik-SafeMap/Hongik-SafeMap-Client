@@ -1,5 +1,4 @@
 import { Route, Routes } from 'react-router-dom';
-import { Floating } from '@/components/common/Floating';
 import { AdminTabBar } from '@/components/common/TabBar';
 import AdminHomePage from '@/pages/admin/AdminHomePage';
 import AdminReportPage from '@/pages/admin/AdminReportPage';
@@ -10,8 +9,6 @@ const AdminRoute = () => {
     <div
       style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}
     >
-      <Floating />
-
       <main>
         <Routes>
           <Route index element={<AdminHomePage />} />

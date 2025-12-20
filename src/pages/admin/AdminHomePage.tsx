@@ -1,8 +1,11 @@
 import styled from 'styled-components';
 import { TitleHeader } from '@/components/common/TitleHeader';
 import { StatusCard } from '@/components/dashboard/StatusCard';
+import { useAdminGetDashboard } from '@/api/admin';
 
 const AdminHomePage = () => {
+  const { data } = useAdminGetDashboard();
+
   return (
     <Container>
       <TitleHeader
@@ -11,9 +14,21 @@ const AdminHomePage = () => {
       />
 
       <StatusWrapper>
-        <StatusCard title="총 제보 수" status="총 5명 중" count={0} />
-        <StatusCard title="총 사용자" status="전체 등록된 사용자" count={0} />
-        <StatusCard title="공신력 사용자" status="전체 등록된 제보" count={0} />
+        <StatusCard
+          title="총 제보 수"
+          status="전체 등록된 제보"
+          count={data?.totalReports ?? 0}
+        />
+        <StatusCard
+          title="총 사용자"
+          status="전체 등록된 사용자"
+          count={data?.credibleUsers ?? 0}
+        />
+        <StatusCard
+          title="공신력 사용자"
+          status={`총 ${data?.credibleUsers}명 중`}
+          count={data?.totalUsers ?? 0}
+        />
       </StatusWrapper>
     </Container>
   );

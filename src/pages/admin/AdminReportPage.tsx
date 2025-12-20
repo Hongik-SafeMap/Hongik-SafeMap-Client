@@ -1,8 +1,18 @@
 import styled from 'styled-components';
 import { TitleHeader } from '@/components/common/TitleHeader';
 import { AdminReportCard } from '@/components/report/AdminReportCard';
+import { useAdminGetReports } from '@/api/admin';
+import type { PageableRequest } from '@/types/Pageable';
 
 const AdminReportPage = () => {
+  const pageable: PageableRequest = {
+    page: 0,
+    size: 100,
+    sort: [],
+  };
+
+  const { data } = useAdminGetReports(pageable);
+
   return (
     <Container>
       <TitleHeader
@@ -10,7 +20,9 @@ const AdminReportPage = () => {
         subTitle="제보를 검토하고 조치할 수 있습니다"
       />
 
-      <AdminReportCard />
+      {data?.content.map((report) => (
+        <AdminReportCard report={report} />
+      ))}
     </Container>
   );
 };

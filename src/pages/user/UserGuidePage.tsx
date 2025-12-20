@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { useMemo, useState } from 'react';
-import SearchIcon from '@/assets/icons/Search.svg?react';
+import Search from '@/assets/icons/Search.svg?react';
 import Close from '@/assets/icons/Close.svg?react';
 import Star from '@/assets/icons/Star.svg?react';
 import StarFilled from '@/assets/icons/StarFilled.svg?react';
@@ -61,7 +61,13 @@ const UserGuidePage = () => {
           width="36px"
           height="36px"
           variant="white"
-          style={{ fontWeight: '500', fontSize: '14px' }}
+          style={{
+            fontWeight: '500',
+            fontSize: '14px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
           onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
         >
           {showFavoritesOnly ? <StarFilled /> : <Star />}
@@ -123,13 +129,15 @@ const SearchBarWrapper = styled.div`
   .icon {
     display: flex;
     gap: 6px;
+    align-items: center;
 
     position: absolute;
-    top: 6px;
+    top: 9px;
     right: 12px;
   }
 
   svg {
+    color: ${({ theme }) => theme.colors.gray700};
     cursor: pointer;
   }
 `;
@@ -148,12 +156,5 @@ const SearchBar = styled.input`
 
   &::placeholder {
     color: ${({ theme }) => theme.colors.gray300};
-  }
-`;
-
-const Search = styled(SearchIcon)`
-  circle,
-  path {
-    stroke: ${({ theme }) => theme.colors.gray700};
   }
 `;

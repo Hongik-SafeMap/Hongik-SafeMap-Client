@@ -1,67 +1,118 @@
 import styled from 'styled-components';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { SectionCard } from '@/components/mypage/SectionCard';
 import { ContactInfoCard } from '@/components/mypage/ContactInfoCard';
-import { Button } from '@/components/common/Button';
 import { Toast } from '@/components/common/Toast';
-import type { Contact } from '@/types/Mypage';
+import type {
+  EmergencyContactsResponse,
+  SensitiveInfoRequest,
+  SensitiveInfoResponse,
+} from '@/types/Mypage';
+import {
+  useDeleteEmergencyContact,
+  useGetEmergencyContact,
+  useGetSensitiveInfo,
+  usePutSensitiveInfo,
+} from '@/api/mypage';
+import { Button } from '../common/Button';
+import { InputBox } from '../common/InputBox';
+import { Dropdown } from '../common/Dropdown';
 
 export const PrivacySettings = () => {
   const [isMedicalOpen, setIsMedicalOpen] = useState(false);
-  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [sensitiveInfo, setSensitiveInfo] = useState<SensitiveInfoResponse>();
+  const [contacts, setContacts] = useState<EmergencyContactsResponse>([]);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  const { data: medicalData } = useGetSensitiveInfo();
+  const { data: contactData } = useGetEmergencyContact();
+
+  useEffect(() => {
+    if (medicalData) {
+      setSensitiveInfo(medicalData);
+    }
+    if (contactData) {
+      setContacts(contactData);
+    }
+  }, [medicalData, contactData]);
+
+  const { mutate: sensitiveMutation } = usePutSensitiveInfo();
+
+  const handleMedicalChange = useCallback(
+    (
+      field: keyof Omit<SensitiveInfoResponse, 'sensitiveInfoId'>,
+      value: string,
+    ) => {
+      setSensitiveInfo((prev) => {
+        const base = prev || {
+          sensitiveInfoId: 0,
+          bloodType: '',
+          allergies: '',
+          chronicDiseases: '',
+          medications: '',
+        };
+        return { ...base, [field]: value };
+      });
+    },
+    [],
+  );
+
+  const handleEditMedical = () => {
+    const payload: SensitiveInfoRequest = {
+      bloodType: sensitiveInfo?.bloodType || 'A+',
+      allergies: sensitiveInfo?.allergies || '',
+      chronicDiseases: sensitiveInfo?.chronicDiseases || '',
+      medications: sensitiveInfo?.medications || '',
+    };
+
+    sensitiveMutation(payload, {
+      onSuccess: () => {
+        setToastMessage('의료 정보가 수정되었습니다.');
+      },
+      onError: () => {
+        setToastMessage(`의료 정보 수정을 실패했습니다.`);
+      },
+    });
+  };
+
+  const { mutate: deleteContact } = useDeleteEmergencyContact();
+
   const handleAddContact = () => {
+    const newId =
+      (contacts.length > 0
+        ? Math.min(...contacts.map((c) => c.emergencyContactId), 0)
+        : 0) - 1;
+
     setContacts((prev) => [
       ...prev,
-      { id: contacts?.length + 1, name: '', relationship: '', phoneNumber: '' },
+      {
+        emergencyContactId: newId,
+        name: '',
+        relationship: '',
+        phone: '',
+      },
     ]);
   };
 
   const handleDeleteContact = (id: number) => {
-    if (contacts.length > 1) {
-      setContacts((prev) => prev.filter((c) => c.id !== id));
-    } else {
+    if (contacts.length <= 1) {
       setToastMessage('최소 1개의 비상연락처는 있어야 합니다.');
+      return;
     }
-  };
 
-  const handleChangeContact = (
-    id: number,
-    field: keyof Omit<Contact, 'id'>,
-    value: string,
-  ) => {
-    setContacts((prevContacts) =>
-      prevContacts.map((contact) =>
-        contact.id === id ? { ...contact, [field]: value } : contact,
-      ),
-    );
-  };
+    const isTemporaryId = id < 0;
 
-  const isContactValid = !contacts.every(
-    (contact) =>
-      contact.name.trim() !== '' && contact.phoneNumber.trim() !== '',
-  );
-
-  const handleSaveContacts = () => {
-    if (isContactValid) {
-      // 서버 전송
-    } else {
-      setToastMessage('모든 비상 연락처의 이름과 연락처를 입력해주세요.');
+    if (isTemporaryId) {
+      setContacts((prev) => prev.filter((c) => c.emergencyContactId !== id));
+      return;
     }
+
+    deleteContact(id, {
+      onError: () => {
+        setToastMessage('비상연락처 삭제에 실패했습니다.');
+      },
+    });
   };
-
-  useEffect(() => {
-    if (toastMessage) {
-      const timer = setTimeout(() => {
-        setToastMessage(null);
-      }, 3000);
-
-      return () => {
-        clearTimeout(timer);
-      };
-    }
-  }, [toastMessage]);
 
   return (
     <Container>
@@ -76,7 +127,55 @@ export const PrivacySettings = () => {
         }
       >
         {isMedicalOpen ? (
-          <Medical></Medical>
+          <Medical>
+            <div className="dropdown">
+              <div>혈액형</div>
+              <Dropdown
+                title="혈액형"
+                options={['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']}
+                selectedOption={sensitiveInfo?.bloodType || 'A+'}
+                setSelectedOption={(option: string) => {
+                  handleMedicalChange('bloodType', option);
+                }}
+              />
+            </div>
+
+            <InputBox
+              title="알레르기"
+              placeholder="예) 페니실린"
+              value={sensitiveInfo?.allergies}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                handleMedicalChange('allergies', e.target.value)
+              }
+            />
+
+            <InputBox
+              title="기저 질환"
+              placeholder="예) 고혈압"
+              value={sensitiveInfo?.chronicDiseases}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                handleMedicalChange('chronicDiseases', e.target.value)
+              }
+            />
+
+            <InputBox
+              title="복용 약물"
+              placeholder="예) 혈압약"
+              value={sensitiveInfo?.medications}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                handleMedicalChange('medications', e.target.value)
+              }
+            />
+
+            <Button
+              height="36px"
+              style={{ fontSize: '14px', fontWeight: '500', marginTop: '8px' }}
+              variant="black"
+              onClick={handleEditMedical}
+            >
+              의료정보 수정하기
+            </Button>
+          </Medical>
         ) : (
           <Medical>
             <div className="hide">의료 정보가 숨겨져 있습니다</div>
@@ -94,22 +193,12 @@ export const PrivacySettings = () => {
       >
         {contacts.map((contact) => (
           <ContactInfoCard
-            key={contact.id}
+            key={contact.emergencyContactId}
             contact={contact}
             onDelete={handleDeleteContact}
-            onChange={handleChangeContact}
             canDelete={contacts.length > 1}
           />
         ))}
-        <Button
-          height="36px"
-          style={{ fontSize: '14px', fontWeight: '500' }}
-          variant={isContactValid ? 'black' : 'gray'}
-          disabled={isContactValid}
-          onClick={handleSaveContacts}
-        >
-          비상연락처 저장하기
-        </Button>
       </SectionCard>
 
       {toastMessage && <Toast text={toastMessage} />}
@@ -146,7 +235,7 @@ const ClickButton = styled.button`
 const Medical = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 16px;
 
   .hide {
     text-align: center;
@@ -156,9 +245,21 @@ const Medical = styled.div`
   }
 
   .click {
+    margin-top: -12px;
     text-align: center;
     color: ${({ theme }) => theme.colors.gray500};
     font-size: ${({ theme }) => theme.font.fontSize.text14};
     font-weight: ${({ theme }) => theme.font.fontWeight.regular};
+  }
+
+  .dropdown {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    color: ${({ theme }) => theme.colors.gray900};
+    font-size: ${({ theme }) => theme.font.fontSize.text14};
+    font-weight: ${({ theme }) => theme.font.fontWeight.semibold};
   }
 `;

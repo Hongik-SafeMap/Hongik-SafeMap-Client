@@ -4,8 +4,13 @@ import { SectionCard } from '@/components/mypage/SectionCard';
 import { InputBox } from '@/components/common/InputBox';
 import { Button } from '@/components/common/Button';
 import { Toast } from '@/components/common/Toast';
+import { useLogoutMutation } from '@/api/auth';
+import { useGetMy, usePatchPassword } from '@/api/mypage';
+import type { PasswordRequest } from '@/types/Mypage';
 
 export const AccountInfo = () => {
+  const [email, setEmail] = useState('');
+
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
@@ -16,6 +21,11 @@ export const AccountInfo = () => {
     confirmNewPassword: '',
     apiError: '',
   });
+
+  const { data } = useGetMy();
+  useEffect(() => {
+    setEmail(data?.email || '');
+  }, [data]);
 
   const validateField = (fieldName: string, value: string) => {
     let errorMessage = '';
@@ -80,24 +90,44 @@ export const AccountInfo = () => {
     setErrors((prev) => ({ ...prev, [fieldName]: errorMessage }));
   };
 
-  const isPasswordValid = Object.values(errors).some((msg) => msg !== '');
+  const isErrorExist = Object.values(errors).some((msg) => msg !== '');
 
+  const { mutate: passwordMutation } = usePatchPassword();
   const handleChangePassword = () => {
     setErrors((prev) => ({ ...prev, apiError: '' }));
 
-    if (!isPasswordValid) {
+    if (isErrorExist) {
       return;
     }
 
-    setToastMessage('비밀번호가 성공적으로 변경되었습니다!');
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmNewPassword('');
+    const passwordRequest: PasswordRequest = {
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+    };
 
-    setErrors((prev) => ({
-      ...prev,
-      apiError: '비밀번호 변경에 실패했습니다.',
-    }));
+    passwordMutation(passwordRequest, {
+      onSuccess: () => {
+        setToastMessage('비밀번호가 성공적으로 변경되었습니다!');
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmNewPassword('');
+      },
+      onError: () => {
+        setErrors((prev) => ({
+          ...prev,
+          apiError: '비밀번호 변경에 실패했습니다.',
+        }));
+      },
+    });
+  };
+
+  const { mutate: logoutMutation } = useLogoutMutation();
+  const handleLogoutClick = () => {
+    logoutMutation(undefined, {
+      onError: () => {
+        alert('로그아웃에 실패했습니다. 다시 시도해주세요.');
+      },
+    });
   };
 
   useEffect(() => {
@@ -114,8 +144,8 @@ export const AccountInfo = () => {
 
   return (
     <Container>
-      <SectionCard title="아이디" detail="로그인에 사용되는 아이디">
-        <InputBox title="이메일" placeholder="사용자 이메일" />
+      <SectionCard title="아이디" detail="로그인에 사용되는 아이디(이메일)">
+        <InputBox title="아이디" placeholder="사용자 이메일" value={email} />
         <div className="id">아이디는 변경할 수 없습니다</div>
       </SectionCard>
 
@@ -153,14 +183,16 @@ export const AccountInfo = () => {
         <Button
           height="36px"
           style={{ fontSize: '14px', fontWeight: '500' }}
-          variant={isPasswordValid ? 'black' : 'gray'}
-          disabled={isPasswordValid}
+          variant={isErrorExist ? 'gray' : 'black'}
+          disabled={isErrorExist}
           onClick={handleChangePassword}
         >
           비밀번호 변경하기
         </Button>
         {errors.apiError && <ErrorMessage>{errors.apiError}</ErrorMessage>}
       </SectionCard>
+
+      <LogoutButton onClick={handleLogoutClick}>로그아웃</LogoutButton>
 
       {toastMessage && <Toast text={toastMessage} />}
     </Container>
@@ -183,4 +215,11 @@ const ErrorMessage = styled.div`
   color: ${({ theme }) => theme.colors.mainRed};
   font-size: ${({ theme }) => theme.font.fontSize.text12};
   font-weight: ${({ theme }) => theme.font.fontWeight.medium};
+`;
+
+const LogoutButton = styled.button`
+  margin-top: 20px;
+  color: ${({ theme }) => theme.colors.gray500};
+  font-size: ${({ theme }) => theme.font.fontSize.text14};
+  font-weight: ${({ theme }) => theme.font.fontWeight.bold};
 `;

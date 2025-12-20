@@ -1,25 +1,73 @@
 import { styled } from 'styled-components';
+import { useState } from 'react';
 import Kakao from '@/assets/icons/KakaoLogin.svg';
 import Naver from '@/assets/icons/NaverLogin.png';
 import { Button } from '@/components/common/Button';
+import { InputBox } from '@/components/common/InputBox';
 import { useHandleNavigate } from '@/hooks/useHandleNavigate';
+import { useGeneralLoginMutation } from '@/api/auth';
+import type { GeneralLoginRequest } from '@/types/Auth';
 
 const LoginPage = () => {
   const { handleNavigate } = useHandleNavigate();
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const { mutate: loginMutation } = useGeneralLoginMutation();
+
+  const handleLoginClick = () => {
+    const loginRequest: GeneralLoginRequest = {
+      email: email,
+      password: password,
+    };
+    console.log(loginRequest);
+    loginMutation(loginRequest, {
+      onSuccess: (response) => {
+        if (response.status === '관리자') {
+          handleNavigate('/admin');
+        } else {
+          handleNavigate('/user/my');
+        }
+
+        setEmail('');
+        setPassword('');
+      },
+      onError: () => {
+        alert('로그인 실패! 이메일과 비밀번호를 확인해주세요.');
+      },
+    });
+  };
 
   return (
     <Container>
       <div className="logo">SafeMap</div>
 
       <LoginWrapper>
-        <Input placeholder="아이디를 입력하세요" />
-        <Input placeholder="비밀번호를 입력하세요" type="password" />
-        <Button variant="subBlue" height="48px">
+        <InputBox
+          title="이메일"
+          placeholder="아이디로 사용할 이메일을 입력하세요"
+          style={{ height: '40px' }}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+
+        <InputBox
+          title="비밀번호"
+          placeholder="비밀번호를 입력하세요"
+          style={{ height: '40px' }}
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        <Button variant="black" height="40px" onClick={handleLoginClick}>
           로그인
         </Button>
+
         <Button
           variant="gray"
-          height="48px"
+          height="40px"
           onClick={() => handleNavigate('/signup')}
         >
           회원가입
@@ -104,28 +152,5 @@ const SocialWrapper = styled.div`
   img {
     width: 50px;
     height: 50px;
-  }
-`;
-
-const Input = styled.input`
-  box-sizing: border-box;
-  width: 100%;
-  padding: 16px;
-  border-radius: 12px;
-  // background: ${({ theme }) => theme.colors.gray50};
-  border: 1px solid ${({ theme }) => theme.colors.gray100};
-
-  color: ${({ theme }) => theme.colors.gray900};
-  font-size: ${({ theme }) => theme.font.fontSize.text16};
-  font-weight: ${({ theme }) => theme.font.fontWeight.medium};
-
-  &::placeholder {
-    color: ${({ theme }) => theme.colors.gray300};
-  }
-
-  &:focus {
-    outline: none;
-    caret-color: ${({ theme }) => theme.colors.mainBlue};
-    border: 1px solid ${({ theme }) => theme.colors.mainBlue};
   }
 `;

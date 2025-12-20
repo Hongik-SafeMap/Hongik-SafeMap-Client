@@ -1,31 +1,107 @@
 import styled from 'styled-components';
+import { useCallback, useEffect, useState } from 'react';
+import { Button } from '@/components/common/Button';
 import { InputBox } from '@/components/common/InputBox';
 import { Dropdown } from '@/components/common/Dropdown';
-import type { Contact } from '@/types/Mypage';
+import type {
+  EmergencyContact,
+  EmergencyContactsRequest,
+} from '@/types/Mypage';
+import { Toast } from '../common/Toast';
+import { usePostEmergencyContact, usePutEmergencyContact } from '@/api/mypage';
 
 interface ContactInfoCardProps {
-  contact: Contact;
+  contact: EmergencyContact;
   onDelete: (id: number) => void;
-  onChange: (
-    id: number,
-    field: keyof Omit<Contact, 'id'>,
-    value: string,
-  ) => void;
   canDelete: boolean;
 }
 
 export const ContactInfoCard = ({
   contact,
   onDelete,
-  onChange,
   canDelete,
 }: ContactInfoCardProps) => {
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [currentContact, setCurrentContact] =
+    useState<EmergencyContact>(contact);
+
+  useEffect(() => {
+    setCurrentContact(contact);
+  }, [contact]);
+
+  const isContactValid =
+    currentContact.name.trim() !== '' && currentContact.phone.trim() !== '';
+
+  const isExistingContact =
+    currentContact.emergencyContactId && currentContact.emergencyContactId > 0;
+
+  const { mutate: editContact } = usePutEmergencyContact();
+  const { mutate: saveContact } = usePostEmergencyContact();
+
+  const handleChange = useCallback(
+    (
+      field: keyof Omit<EmergencyContact, 'emergencyContactId'>,
+      value: string,
+    ) => {
+      setCurrentContact((prev) => ({ ...prev, [field]: value }));
+    },
+    [],
+  );
+
+  const handleSaveContact = () => {
+    if (!isContactValid) {
+      setToastMessage('비상 연락처의 이름과 연락처를 입력해주세요.');
+      return;
+    }
+
+    const payload: EmergencyContactsRequest = {
+      name: currentContact.name,
+      relationship: currentContact.relationship,
+      phone: currentContact.phone,
+    };
+
+    if (isExistingContact) {
+      editContact(
+        { emergencyContactId: currentContact.emergencyContactId, payload },
+        {
+          onSuccess: () => {
+            setToastMessage('비상 연락처가 수정되었습니다.');
+          },
+          onError: () => {
+            setToastMessage(`비상 연락처 수정을 실패했습니다.`);
+          },
+        },
+      );
+    } else {
+      saveContact(payload, {
+        onError: () => {
+          setToastMessage(`비상 연락처 등록을 실패했습니다.`);
+        },
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (toastMessage) {
+      const timer = setTimeout(() => {
+        setToastMessage(null);
+      }, 3000);
+
+      return () => {
+        clearTimeout(timer);
+      };
+    }
+  }, [toastMessage]);
+
   return (
     <Container>
       <div className="top">
-        <div className="contact">비상연락처 {contact.id}</div>
+        <div className="contact">비상연락처</div>
         {canDelete && (
-          <div className="delete" onClick={() => onDelete(contact.id)}>
+          <div
+            className="delete"
+            onClick={() => onDelete(currentContact.emergencyContactId)}
+          >
             삭제
           </div>
         )}
@@ -35,9 +111,9 @@ export const ContactInfoCard = ({
         <InputBox
           title="이름"
           placeholder="이름"
-          value={contact.name}
+          value={currentContact.name}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            onChange(contact.id, 'name', e.target.value)
+            handleChange('name', e.target.value)
           }
         />
 
@@ -46,9 +122,9 @@ export const ContactInfoCard = ({
           <Dropdown
             title="관계"
             options={['배우자', '자녀', '부모', '친구', '지인', '기타']}
-            selectedOption={[contact.relationship]}
-            setSelectedOption={(option: string[]) => {
-              onChange(contact.id, 'relationship', option[0]);
+            selectedOption={currentContact.relationship}
+            setSelectedOption={(option: string) => {
+              handleChange('relationship', option);
             }}
           />
         </div>
@@ -56,12 +132,24 @@ export const ContactInfoCard = ({
 
       <InputBox
         title="연락처"
-        placeholder="연락처"
-        value={contact.phoneNumber}
+        placeholder="01012345678"
+        value={currentContact.phone}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          onChange(contact.id, 'phoneNumber', e.target.value)
+          handleChange('phone', e.target.value)
         }
       />
+
+      <Button
+        height="36px"
+        style={{ fontSize: '14px', fontWeight: '500' }}
+        variant={isContactValid ? 'black' : 'gray'}
+        disabled={!isContactValid}
+        onClick={handleSaveContact}
+      >
+        비상연락처 {isExistingContact ? '수정' : '저장'}하기
+      </Button>
+
+      {toastMessage && <Toast text={toastMessage} />}
     </Container>
   );
 };
@@ -86,7 +174,7 @@ const Container = styled.div`
   }
 
   .delete {
-    color: ${({ theme }) => theme.colors.gray400};
+    color: ${({ theme }) => theme.colors.mainRed};
     font-size: ${({ theme }) => theme.font.fontSize.text14};
     font-weight: ${({ theme }) => theme.font.fontWeight.medium};
   }
