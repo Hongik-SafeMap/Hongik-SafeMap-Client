@@ -59,7 +59,7 @@ const getVariantStyle = (variant: ButtonColor) => {
       `;
     case 'gray':
       return css`
-        background-color: ${({ theme }) => theme.colors.gray300};
+        background-color: ${({ theme }) => theme.colors.gray200};
         color: ${({ theme }) => theme.colors.white};
       `;
     case 'red':

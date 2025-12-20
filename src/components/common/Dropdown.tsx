@@ -2,11 +2,11 @@ import styled from 'styled-components';
 import { useEffect, useRef, useState } from 'react';
 import Chevron from '@/assets/icons/ChevronUp.svg?react';
 
-interface DropdownProps {
+interface DropdownProps extends React.HTMLAttributes<HTMLDivElement> {
   title: string;
   options: string[];
-  selectedOption: string[];
-  setSelectedOption: (currentValue: string[]) => void;
+  selectedOption: string;
+  setSelectedOption: (currentValue: string) => void;
 }
 
 export const Dropdown = ({
@@ -14,6 +14,7 @@ export const Dropdown = ({
   options,
   selectedOption,
   setSelectedOption,
+  ...props
 }: DropdownProps) => {
   const selectRef = useRef<HTMLDivElement>(null);
   const [showOptions, setShowOptions] = useState(false);
@@ -31,18 +32,18 @@ export const Dropdown = ({
 
   const handleSelectOption = (value: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setSelectedOption([value]);
+    setSelectedOption(value);
     setShowOptions(false);
   };
 
-  const dropdownLabel = selectedOption.length > 0 ? selectedOption[0] : title;
+  const dropdownLabel = selectedOption || title;
 
   return (
     <DropdownWrapper
       onClick={() => setShowOptions((prev) => !prev)}
       ref={selectRef}
     >
-      <DropdownHeader isSelected={selectedOption.length > 0}>
+      <DropdownHeader isSelected={selectedOption !== ''} {...props}>
         <div>{dropdownLabel}</div>
         <DropdownToggle down={showOptions} />
       </DropdownHeader>
