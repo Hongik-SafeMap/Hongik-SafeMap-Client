@@ -3,6 +3,10 @@ export interface PageableRequest {
   size?: number;
 }
 
+export interface TermPageRequest extends PageableRequest {
+  sort?: string[];
+}
+
 export interface BasePageResponse {
   currentPage: number;
   pageSize: number;

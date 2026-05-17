@@ -1,5 +1,5 @@
 import { axiosInstance } from '@/api/axiosInstance';
-import type { PageableRequest } from '@/types/Pageable';
+import type { TermPageRequest } from '@/types/Pageable';
 import type {
   PrivacyPageResponse,
   Term,
@@ -61,12 +61,14 @@ export const useTermsAgree = () => {
 };
 
 // ===================== 관리자 이용약관 =====================
-/* 전체 개인정보처리방침 조회 */
-export const useAdminTerms = (page: PageableRequest) => {
+/* 전체 이용약관 조회 */
+export const useAdminTerms = (pageable: TermPageRequest) => {
   return useQuery<TermPageResponse>({
-    queryKey: ['admin', 'terms', 'list', page],
+    queryKey: ['admin', 'terms', 'list', pageable],
     queryFn: async () => {
-      const response = await axiosInstance.get('/admin/terms');
+      const response = await axiosInstance.get('/admin/terms', {
+        params: pageable,
+      });
       return response.data;
     },
   });
@@ -132,11 +134,13 @@ export const useUpdateTerms = () => {
 
 // ===================== 관리자 개인정보처리방침 =====================
 /* 전체 개인정보처리방침 조회 */
-export const useAdminPrivacyPolicy = (page: PageableRequest) => {
+export const useAdminPrivacyPolicy = (pageable: TermPageRequest) => {
   return useQuery<PrivacyPageResponse>({
-    queryKey: ['admin', 'privacy', 'list', page],
+    queryKey: ['admin', 'privacy', 'list', pageable],
     queryFn: async () => {
-      const response = await axiosInstance.get('/admin/privacy-policy');
+      const response = await axiosInstance.get('/admin/privacy-policy', {
+        params: pageable,
+      });
       return response.data;
     },
   });

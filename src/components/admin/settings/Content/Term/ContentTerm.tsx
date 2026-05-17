@@ -8,11 +8,15 @@ import {
 } from '@/api/term';
 import { Modal } from '@/components/common/Modal';
 import { ContentTermModal } from '@/components/admin/settings/Content/Term/ContentTermModal';
+import { ModalAllTerm } from '@/components/admin/settings/Content/Term/ModalAllTerm';
 import { formatDashDate } from '@/utils/formatDate';
 
 export const ContentTerm = () => {
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
   const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
+
+  const [isServiceAllModalOpen, setIsServiceAllModalOpen] = useState(false);
+  const [isPrivacyAllModalOpen, setIsPrivacyAllModalOpen] = useState(false);
 
   const { data: terms } = useAdminTermsLatest();
   const { data: privacy } = useAdminPrivacyPolicyLatest();
@@ -27,7 +31,7 @@ export const ContentTerm = () => {
           이용약관 {termsVersion ? '편집' : '등록'}
         </div>
         {termsVersion && (
-          <Version>
+          <Version onClick={() => setIsServiceAllModalOpen(true)}>
             <span>현재 버전</span>
             <div>
               v{termsVersion?.version} (
@@ -42,7 +46,7 @@ export const ContentTerm = () => {
           개인정보처리방침 {privacyVersion ? '편집' : '등록'}
         </div>
         {privacyVersion && (
-          <Version>
+          <Version onClick={() => setIsPrivacyAllModalOpen(true)}>
             <span>현재 버전</span>
             <div>
               v{privacyVersion?.version} (
@@ -71,6 +75,26 @@ export const ContentTerm = () => {
           onClose={() => setIsPrivacyModalOpen(false)}
           type="개인정보처리방침"
           initialTerms={privacy}
+        />
+      </Modal>
+
+      <Modal
+        isOpen={isServiceAllModalOpen}
+        onClose={() => setIsServiceAllModalOpen(false)}
+      >
+        <ModalAllTerm
+          onClose={() => setIsServiceAllModalOpen(false)}
+          type="이용약관"
+        />
+      </Modal>
+
+      <Modal
+        isOpen={isPrivacyAllModalOpen}
+        onClose={() => setIsPrivacyAllModalOpen(false)}
+      >
+        <ModalAllTerm
+          onClose={() => setIsPrivacyAllModalOpen(false)}
+          type="개인정보처리방침"
         />
       </Modal>
     </Container>
@@ -114,6 +138,7 @@ const Version = styled.div`
   gap: 6px;
   border-radius: 8px;
   background: ${({ theme }) => theme.colors.gray200};
+  cursor: pointer;
 
   color: ${({ theme }) => theme.colors.gray800};
   font-size: ${({ theme }) => theme.font.fontSize.body18};
