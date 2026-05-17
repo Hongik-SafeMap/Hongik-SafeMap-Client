@@ -3,15 +3,15 @@ import { useState } from 'react';
 import { Dropdown } from '@/components/common/Dropdown';
 import { Toggle } from '@/components/common/Toggle';
 import {
-  useNotificationPreference,
-  useUpdateNotification,
+  useAdminNotificationPreference,
+  useAdminUpdateNotification,
 } from '@/api/notification';
 
 export const SystemAlarm = () => {
   const [selectedOption, setSelectedOption] = useState('즉시');
 
-  const { data } = useNotificationPreference();
-  const { mutate: updateNotification } = useUpdateNotification();
+  const { data } = useAdminNotificationPreference();
+  const { mutate: updateNotification } = useAdminUpdateNotification();
 
   const handleToggle = (id: number, currentStatus: boolean) => {
     updateNotification({
