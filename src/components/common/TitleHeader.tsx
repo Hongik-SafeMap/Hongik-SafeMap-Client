@@ -3,6 +3,7 @@ import Logo from '@/assets/icons/LogoHome.svg?react';
 import My from '@/assets/icons/My.svg?react';
 import Notification from '@/assets/icons/Notification.svg?react';
 import { useHandleNavigate } from '@/hooks/useHandleNavigate';
+import { useNotificationUnread } from '@/api/notification';
 
 interface TitleMainSubProps {
   main: string;
@@ -55,11 +56,25 @@ export const TitleHeader = ({
 }: TitleHeaderProps) => {
   const { handleNavigate } = useHandleNavigate();
 
+  const { data } = useNotificationUnread();
+
   return (
     <TitleHeaderWrapper>
       {home ? <Logo /> : <TitleMainSub main={mainTitle} sub={subTitle} />}
+
       <div className="icons">
-        <Notification />
+        <div
+          className="notification"
+          onClick={() => handleNavigate('/user/notification')}
+        >
+          <Notification />
+          {data > 0 && (
+            <Count isSingleDigit={data > 0 && data < 10}>
+              {data > 99 ? '99+' : data}
+            </Count>
+          )}
+        </div>
+
         <My onClick={() => handleNavigate('/user/my')} />
       </div>
     </TitleHeaderWrapper>
@@ -84,6 +99,43 @@ const TitleHeaderWrapper = styled.div`
   .icons {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
   }
+
+  .notification {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+`;
+
+const Count = styled.div<{ isSingleDigit: boolean }>`
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${({ theme }) => theme.colors.red600};
+  position: absolute;
+
+  ${({ isSingleDigit }) =>
+    isSingleDigit
+      ? `
+        width: 16px;
+        padding: 0px;
+        border-radius: 50%;
+        top: 0px;
+        right: 0px;
+      `
+      : `
+        padding: 0px 6px;
+        border-radius: 8px;
+        top: 0px;
+        right: -4px;
+      `}
+
+  color: ${({ theme }) => theme.colors.white};
+  font-size: ${({ theme }) => theme.font.fontSize.detail10};
+  font-weight: ${({ theme }) => theme.font.fontWeight.medium};
 `;

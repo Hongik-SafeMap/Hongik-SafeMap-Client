@@ -12,6 +12,7 @@ import { MissingBoardWritePage } from '@/pages/user/Board/MissingBoardWritePage'
 import { MissingPostPage } from '@/pages/user/Board/MissingPostPage';
 import { GuidePage } from '@/pages/user/Guide/GuidePage';
 import { GuideDetailPage } from '@/pages/user/Guide/GuideDetailPage';
+import { UserNotificationPage } from '@/pages/user/UserNotificationPage';
 import { UserMyRoute } from '@/route/UserMyRoute';
 import { UserTabBar } from '@/components/user/UserTabBar';
 import { useHandleNavigate } from '@/hooks/useHandleNavigate';
@@ -26,6 +27,7 @@ export const UserRoute = () => {
     '/user/resource/:id',
     '/user/missing/write',
     '/user/missing/:id',
+    '/user/notification',
     '/user/my',
     '/user/my/account',
     '/user/my/password',
@@ -47,6 +49,7 @@ export const UserRoute = () => {
     '/user/resource/:id',
     '/user/missing/write',
     '/user/missing/:id',
+    '/user/notification',
     '/user/my',
     '/user/my/account',
     '/user/my/password',
@@ -84,6 +87,8 @@ export const UserRoute = () => {
 
           <Route path="guide" element={<GuidePage />} />
           <Route path="guide/:id" element={<GuideDetailPage />} />
+
+          <Route path="notification" element={<UserNotificationPage />} />
 
           <Route path="my/*" element={<UserMyRoute />} />
         </Routes>

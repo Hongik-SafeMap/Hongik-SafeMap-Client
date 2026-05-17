@@ -4,7 +4,7 @@ import { onMessage } from 'firebase/messaging';
 import { messaging } from '@/firebase';
 import { useMaintenance } from '@/contexts/MaintenanceContext';
 import { Modal } from '@/components/common/Modal';
-// import { ModalNotification } from '@/components/common/ModalNotification';
+import { ModalNotification } from '@/components/common/ModalNotification';
 import { ModalInstall } from '@/components/common/ModalInstall';
 import { SplashPage } from '@/pages/login/SplashPage';
 import { LoginPage } from '@/pages/login/LoginPage';
@@ -15,7 +15,7 @@ import { ErrorPage } from '@/pages/ErrorPage';
 import { MaintenancePage } from '@/pages/MaintenancePage';
 
 function App() {
-  // const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
 
   const isPWA = () => window.matchMedia('(display-mode: standalone)').matches;
@@ -24,8 +24,8 @@ function App() {
   useEffect(() => {
     if (isIos() && !isPWA()) {
       setShowGuide(true);
-    } else if (isPWA() && Notification.permission === 'default') {
-      // setIsModalOpen(true);
+    } else if (Notification.permission === 'default') {
+      setIsModalOpen(true);
     }
 
     const unsubscribe = onMessage(messaging, (payload) => {
@@ -35,20 +35,6 @@ function App() {
 
     return () => unsubscribe();
   }, []);
-
-  // const isTouchDevice = 'ontouchstart' in window;
-  // const isNotification = 'Notification' in window;
-
-  // useEffect(() => {
-  //   if (
-  //     isNotification &&
-  //     Notification.permission === 'default' &&
-  //     isPWA() &&
-  //     isTouchDevice
-  //   ) {
-  //     setIsModalOpen(true);
-  //   }
-  // }, []);
 
   const { isMaintenance, setMaintenance } = useMaintenance();
 
@@ -81,10 +67,9 @@ function App() {
         <Route path="*" element={<ErrorPage />} />
       </Routes>
 
-      {/* 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <ModalNotification onClose={() => setIsModalOpen(false)} />
-      </Modal> */}
+      </Modal>
 
       <Modal isOpen={showGuide} onClose={() => setShowGuide(false)}>
         <ModalInstall onClose={() => setShowGuide(false)} />

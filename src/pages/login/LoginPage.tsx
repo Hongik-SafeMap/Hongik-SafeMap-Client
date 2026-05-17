@@ -18,7 +18,6 @@ export const LoginPage = () => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [fcmToken, setFcmToken] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [retryTimer, setRetryTimer] = useState(0);
 
@@ -38,15 +37,19 @@ export const LoginPage = () => {
 
   const { mutate: login } = useGeneralLoginMutation();
 
-  const handleLoginClick = () => {
+  const handleLoginClick = async () => {
     if (retryTimer > 0) return;
+
+    const fcmToken = (await handleAllowNotification()) || '';
 
     const loginRequest: GeneralLoginRequest = {
       email,
       password,
       fcmToken,
     };
+
     // console.log(loginRequest);
+
     login(loginRequest, {
       onSuccess: (response) => {
         if (response.status === 'ADMIN') {
@@ -69,21 +72,9 @@ export const LoginPage = () => {
     });
   };
 
-  useEffect(() => {
-    const getNotificationToken = async () => {
-      try {
-        const notificationResult = await handleAllowNotification();
-
-        if (notificationResult === 'granted') {
-          setFcmToken(notificationResult);
-        }
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
-    getNotificationToken();
-  }, []);
+  // const handleSocialLogin = (provider: 'kakao' | 'naver') => {
+  //   window.location.href = `https://your-backend-server.com/oauth2/authorization/${provider}`;
+  // };
 
   const isDisabled =
     retryTimer > 0 || email.length === 0 || password.length === 0;
