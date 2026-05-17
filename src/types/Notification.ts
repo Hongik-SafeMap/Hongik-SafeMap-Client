@@ -2,7 +2,8 @@ import type { BasePageResponse } from '@/types/Pageable';
 
 // ===================== 알림 =====================
 /* [get] /notifications/preferences */
-export interface AdminNotification {
+/* [get] /admin/notifications/preferences */
+export interface NotificationPreference {
   disasterTypeId: number;
   disasterTypeName: string;
   iconUrl: string;
@@ -10,7 +11,8 @@ export interface AdminNotification {
 }
 
 /* [put] /notifications/preferences */
-export interface AdminNotificationRequset {
+/* [put] /admin/notifications/preferences */
+export interface NotificationPreferenceRequest {
   disasterTypeId: number;
   isEnabled: boolean;
 }
