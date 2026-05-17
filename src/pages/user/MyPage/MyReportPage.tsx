@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { NavBar } from '@/components/common/NavBar';
 import Exit from '@/assets/icons/Exit.svg?react';
 import { useGetMyReports } from '@/api/mypage';
+import { TitleMainSub } from '@/components/common/TitleHeader';
 import { UserReportCard } from '@/components/user/mypage/UserReportCard';
 import { Pagination } from '@/components/common/Pagination';
 import { useHandleNavigate } from '@/hooks/useHandleNavigate';
@@ -28,7 +29,13 @@ export const MyReportPage = () => {
   return (
     <Container>
       <NavBar
-        center={<NavCenter>내 제보</NavCenter>}
+        center={
+          <TitleMainSub
+            main="재난 제보 내역"
+            sub="내가 재난 제보 내역입니다"
+            align="center"
+          />
+        }
         right={<Exit onClick={handleGoBack} />}
       />
 
@@ -68,10 +75,4 @@ const Container = styled.div`
   .pagination {
     padding: 12px 0px;
   }
-`;
-
-const NavCenter = styled.div`
-  color: ${({ theme }) => theme.colors.gray1000};
-  font-size: ${({ theme }) => theme.font.fontSize.title20};
-  font-weight: ${({ theme }) => theme.font.fontWeight.bold};
 `;

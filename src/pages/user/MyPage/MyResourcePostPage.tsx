@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { NavBar } from '@/components/common/NavBar';
 import Exit from '@/assets/icons/Exit.svg?react';
 import { useGetMyResourceReports } from '@/api/mypage';
+import { TitleMainSub } from '@/components/common/TitleHeader';
 import { PostCard } from '@/components/user/board/PostCard';
 import { Pagination } from '@/components/common/Pagination';
 import { useHandleNavigate } from '@/hooks/useHandleNavigate';
@@ -28,7 +29,13 @@ export const MyResourcePostPage = () => {
   return (
     <Container>
       <NavBar
-        center={<NavCenter>내 자원 게시글</NavCenter>}
+        center={
+          <TitleMainSub
+            main="자원 게시글 내역"
+            sub="내가 쓴 자원 게시글 내역입니다"
+            align="center"
+          />
+        }
         right={<Exit onClick={handleGoBack} />}
       />
 
@@ -70,12 +77,6 @@ const Container = styled.div`
   .pagination {
     padding: 12px 0px;
   }
-`;
-
-const NavCenter = styled.div`
-  color: ${({ theme }) => theme.colors.gray1000};
-  font-size: ${({ theme }) => theme.font.fontSize.title20};
-  font-weight: ${({ theme }) => theme.font.fontWeight.bold};
 `;
 
 const PostWrapper = styled.div`
