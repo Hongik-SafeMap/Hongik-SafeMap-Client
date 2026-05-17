@@ -44,18 +44,6 @@ export const MyPage = () => {
       />
 
       <MenuWrapper>
-        <div className="title">이용약관</div>
-        <div className="menu" onClick={() => setIsTermsModalOpen(true)}>
-          서비스 이용약관
-        </div>
-        <div className="menu" onClick={() => setIsPrivacyModalOpen(true)}>
-          개인정보처리 방침
-        </div>
-      </MenuWrapper>
-
-      <Border />
-
-      <MenuWrapper>
         <div className="title">내 정보</div>
         <div
           className="menu"
@@ -74,7 +62,7 @@ export const MyPage = () => {
       <Border />
 
       <MenuWrapper>
-        <div className="title">민감 정보</div>
+        <div className="title">안전 프로필</div>
         <div
           className="menu"
           onClick={() => handleNavigate('/user/my/medical')}
@@ -92,21 +80,45 @@ export const MyPage = () => {
       <Border />
 
       <MenuWrapper>
-        <div className="title">내 제보</div>
+        <div className="title">내 활동 관리</div>
         <div className="menu" onClick={() => handleNavigate('/user/my/report')}>
-          내 제보글
+          재난 제보 내역
         </div>
         <div
           className="menu"
           onClick={() => handleNavigate('/user/my/resource')}
         >
-          내 자원 게시글
+          자원 게시글 내역
         </div>
         <div
           className="menu"
           onClick={() => handleNavigate('/user/my/missing')}
         >
-          내 실종 게시글
+          실종 게시글 내역
+        </div>
+      </MenuWrapper>
+
+      <Border />
+
+      <MenuWrapper>
+        <div className="title">알림</div>
+        <div
+          className="menu"
+          onClick={() => handleNavigate('/user/my/notification')}
+        >
+          재난 알림 설정
+        </div>
+      </MenuWrapper>
+
+      <Border />
+
+      <MenuWrapper>
+        <div className="title">이용약관</div>
+        <div className="menu" onClick={() => setIsTermsModalOpen(true)}>
+          서비스 이용약관
+        </div>
+        <div className="menu" onClick={() => setIsPrivacyModalOpen(true)}>
+          개인정보처리 방침
         </div>
       </MenuWrapper>
 

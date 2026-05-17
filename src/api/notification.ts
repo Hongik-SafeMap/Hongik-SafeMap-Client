@@ -5,6 +5,7 @@ import type {
   NotificationPreferenceRequest,
   NotificationResponse,
 } from '@/types/Notification';
+import type { PageableRequest } from '@/types/Pageable';
 
 // ===================== 알림 - 관리자 시스템 알림 설정 =====================
 /* 알림 설정 조회 */
@@ -26,7 +27,7 @@ export const useAdminUpdateNotification = () => {
 
   return useMutation({
     mutationFn: async (request: NotificationPreferenceRequest) => {
-      const response = await axiosInstance.patch(
+      const response = await axiosInstance.put(
         '/admin/notifications/preferences',
         request,
       );
@@ -42,9 +43,9 @@ export const useAdminUpdateNotification = () => {
 
 // ===================== 알림 - 사용자 알림 화면 =====================
 /* 알림 목록 조회 */
-export const useNotifications = () => {
+export const useNotifications = (pageable: PageableRequest) => {
   return useQuery<NotificationResponse>({
-    queryKey: ['notifications', 'list'],
+    queryKey: ['notifications', 'list', pageable],
     queryFn: async () => {
       const response = await axiosInstance.get('/notifications');
       return response.data;
@@ -69,7 +70,7 @@ export const useUpdateNotificationRead = () => {
 
   return useMutation({
     mutationFn: async () => {
-      const response = await axiosInstance.patch('/notifications/read');
+      const response = await axiosInstance.put('/notifications/read');
       return response.data;
     },
     onSuccess: () => {

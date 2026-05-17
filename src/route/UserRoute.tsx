@@ -34,6 +34,7 @@ export const UserRoute = () => {
     '/user/my/medical',
     '/user/my/contact',
     '/user/my/report',
+    '/user/my/notification',
   ];
   const shouldHideTabBar = () => {
     return hideTabBarPaths.some((pathPattern) => {
@@ -56,6 +57,7 @@ export const UserRoute = () => {
     '/user/my/medical',
     '/user/my/contact',
     '/user/my/report',
+    '/user/my/notification',
   ];
   const shouldHideReportButton = () => {
     return hideReportButtonPaths.some((pathPattern) => {

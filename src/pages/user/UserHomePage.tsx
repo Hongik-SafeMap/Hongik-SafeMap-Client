@@ -18,12 +18,10 @@ import { CheckBox } from '@/components/common/CheckBox';
 import { BottomSheetReport } from '@/components/common/BottomSheetReport';
 import { BottomSheetFilter } from '@/components/common/BottomSheetFilter';
 import { useCurrentLocation } from '@/hooks/useCurrentLocation';
-import { useHandleNavigate } from '@/hooks/useHandleNavigate';
-import type { DisasterGroup, DisasterGroupParams } from '@/types/Report';
+import type { DisasterGroupParams } from '@/types/Report';
 import type { FilterState, RiskLevel } from '@/types/common';
 
 export const UserHomePage = () => {
-  const { handleNavigate } = useHandleNavigate();
   const { latitude, longitude } = useCurrentLocation();
 
   const { lastCenter, setLastCenter, lastLevel, setLastLevel } =
