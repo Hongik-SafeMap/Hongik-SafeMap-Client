@@ -67,7 +67,7 @@ export const AdminDashboardPage = () => {
         </div>
 
         <div className="report">
-          {data?.recentReports.map((report) => (
+          {data?.recentReports.slice(0, 3).map((report) => (
             <RecentReportCard report={report} />
           ))}
         </div>
