@@ -1,5 +1,5 @@
 import { styled } from 'styled-components';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { handleAllowNotification } from '@/firebase';
 import Logo from '@/assets/icons/Logo.svg?react';
 import Hide from '@/assets/icons/HideS.svg?react';
@@ -18,7 +18,6 @@ export const LoginPage = () => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [fcmToken, setFcmToken] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   const toggleShowPassword = () => {
@@ -27,13 +26,15 @@ export const LoginPage = () => {
 
   const { mutate: login } = useGeneralLoginMutation();
 
-  const handleLoginClick = () => {
+  const handleLoginClick = async () => {
+    const fcmToken = (await handleAllowNotification()) || '';
+
     const loginRequest: GeneralLoginRequest = {
       email,
       password,
       fcmToken,
     };
-    // console.log(loginRequest);
+    console.log(loginRequest);
     login(loginRequest, {
       onSuccess: (response) => {
         if (response.status === 'ADMIN') {
@@ -51,21 +52,9 @@ export const LoginPage = () => {
     });
   };
 
-  useEffect(() => {
-    const getNotificationToken = async () => {
-      try {
-        const notificationResult = await handleAllowNotification();
-
-        if (notificationResult === 'granted') {
-          setFcmToken(notificationResult);
-        }
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
-    getNotificationToken();
-  }, []);
+  // const handleSocialLogin = (provider: 'kakao' | 'naver') => {
+  //   window.location.href = `https://your-backend-server.com/oauth2/authorization/${provider}`;
+  // };
 
   return (
     <Container>

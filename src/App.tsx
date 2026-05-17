@@ -24,7 +24,7 @@ function App() {
   useEffect(() => {
     if (isIos() && !isPWA()) {
       setShowGuide(true);
-    } else if (isPWA() && Notification.permission === 'default') {
+    } else if (Notification.permission === 'default') {
       setIsModalOpen(true);
     }
 
@@ -35,20 +35,6 @@ function App() {
 
     return () => unsubscribe();
   }, []);
-
-  // const isTouchDevice = 'ontouchstart' in window;
-  // const isNotification = 'Notification' in window;
-
-  // useEffect(() => {
-  //   if (
-  //     isNotification &&
-  //     Notification.permission === 'default' &&
-  //     isPWA() &&
-  //     isTouchDevice
-  //   ) {
-  //     setIsModalOpen(true);
-  //   }
-  // }, []);
 
   const { isMaintenance, setMaintenance } = useMaintenance();
 
@@ -66,16 +52,20 @@ function App() {
   }
 
   return (
-    <Routes>
-      <Route path="/" element={<SplashPage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/signup" element={<SignupPage />} />
+    <>
+      <Routes>
+        <Route path="/" element={<SplashPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
 
-      <Route path="/maintenance" element={<MaintenancePage />} />
+        <Route path="/maintenance" element={<MaintenancePage />} />
 
-      <Route path="/user/*" element={<UserRoute />} />
+        <Route path="/user/*" element={<UserRoute />} />
 
-      <Route path="/admin/*" element={<AdminRoute />} />
+        <Route path="/admin/*" element={<AdminRoute />} />
+
+        <Route path="*" element={<ErrorPage />} />
+      </Routes>
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <ModalNotification onClose={() => setIsModalOpen(false)} />
@@ -84,9 +74,7 @@ function App() {
       <Modal isOpen={showGuide} onClose={() => setShowGuide(false)}>
         <ModalInstall onClose={() => setShowGuide(false)} />
       </Modal>
-
-      <Route path="*" element={<ErrorPage />} />
-    </Routes>
+    </>
   );
 }
 
