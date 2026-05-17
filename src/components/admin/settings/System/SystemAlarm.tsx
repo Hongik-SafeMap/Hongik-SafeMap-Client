@@ -40,7 +40,7 @@ export const SystemAlarm = () => {
           <Section>
             <div className="left">
               <img src={notification.iconUrl} />
-              {notification.disasterTypeName} 알림
+              <span>{notification.disasterTypeName} 알림</span>
             </div>
             <Toggle
               checked={notification.isEnabled}
@@ -94,6 +94,10 @@ const Section = styled.div`
     display: flex;
     align-items: center;
     gap: 4px;
+  }
+
+  span {
+    padding-top: 2px;
   }
 
   img {
