@@ -111,20 +111,12 @@ export const UserHomePage = () => {
         ? Number(firstMarker.getTitle())
         : null;
 
-    if (level >= 5 && !showCluster) {
+    if (level >= 4 && !showCluster) {
       const center = cluster.getCenter();
       map.setCenter(center);
       map.setLevel(level - 1, { animate: true });
     } else {
       if (groupId) handleGroupClick(groupId);
-    }
-  };
-
-  const handleMarkerClick = (group: DisasterGroup) => {
-    if (currentLevel <= 3) {
-      handleNavigate(`/user/report/${group.id}`);
-    } else {
-      handleGroupClick(group.id);
     }
   };
 
@@ -300,7 +292,7 @@ export const UserHomePage = () => {
               clustererRef.current = clusterer;
             }}
             onClusterclick={handleClusterClick}
-            calculator={[5, 15]}
+            calculator={[2, 5]}
             styles={[
               clusterVariant(36, '#EEA3AB', '#E57482'),
               clusterVariant(46, '#DD4658', '#D4182E'),
@@ -321,7 +313,6 @@ export const UserHomePage = () => {
                       src: '',
                       size: { width: 0, height: 0 },
                     }}
-                    onClick={() => handleMarkerClick(group)}
                   />
                 );
               }
@@ -331,7 +322,7 @@ export const UserHomePage = () => {
                   key={index}
                   loc={group}
                   iconUrl={group.disasterType.iconUrl}
-                  onClick={() => handleMarkerClick(group)}
+                  onClick={() => handleGroupClick(group.id)}
                 />
               );
             })}
