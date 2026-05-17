@@ -1,31 +1,60 @@
 import styled from 'styled-components';
 import { useState } from 'react';
-import { PRIVACY_TERMS, SERVICE_TERMS } from '@/data/Terms';
-import { ContentTermModal } from './ContentTermModal';
+import {
+  useAdminPrivacyPolicyLatest,
+  useAdminPrivacyPolicyVersion,
+  useAdminTermsLatest,
+  useAdminTermsVersion,
+} from '@/api/term';
 import { Modal } from '@/components/common/Modal';
+import { ContentTermModal } from '@/components/admin/settings/Content/Term/ContentTermModal';
+import { ModalAllTerm } from '@/components/admin/settings/Content/Term/ModalAllTerm';
+import { formatDashDate } from '@/utils/formatDate';
 
 export const ContentTerm = () => {
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
   const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
 
-  const [serviceTerms, setServiceTerms] = useState(SERVICE_TERMS.sections);
-  const [privacyTerms, setPrivacyTerms] = useState(PRIVACY_TERMS.sections);
+  const [isServiceAllModalOpen, setIsServiceAllModalOpen] = useState(false);
+  const [isPrivacyAllModalOpen, setIsPrivacyAllModalOpen] = useState(false);
+
+  const { data: terms } = useAdminTermsLatest();
+  const { data: privacy } = useAdminPrivacyPolicyLatest();
+
+  const { data: termsVersion } = useAdminTermsVersion();
+  const { data: privacyVersion } = useAdminPrivacyPolicyVersion();
 
   return (
     <Container>
       <Terms>
         <div className="term" onClick={() => setIsServiceModalOpen(true)}>
-          이용약관 편집
+          이용약관 {termsVersion ? '편집' : '등록'}
         </div>
-        <div className="term" onClick={() => setIsPrivacyModalOpen(true)}>
-          개인정보처리방침 편집
-        </div>
+        {termsVersion && (
+          <Version onClick={() => setIsServiceAllModalOpen(true)}>
+            <span>현재 버전</span>
+            <div>
+              v{termsVersion?.version} (
+              {formatDashDate(termsVersion?.updatedAt ?? '')} 업데이트)
+            </div>
+          </Version>
+        )}
       </Terms>
 
-      <Version>
-        <span>현재 버전</span>
-        <div>v1.0 (2026-02-13 업데이트)</div>
-      </Version>
+      <Terms>
+        <div className="term" onClick={() => setIsPrivacyModalOpen(true)}>
+          개인정보처리방침 {privacyVersion ? '편집' : '등록'}
+        </div>
+        {privacyVersion && (
+          <Version onClick={() => setIsPrivacyAllModalOpen(true)}>
+            <span>현재 버전</span>
+            <div>
+              v{privacyVersion?.version} (
+              {formatDashDate(privacyVersion?.updatedAt ?? '')} 업데이트)
+            </div>
+          </Version>
+        )}
+      </Terms>
 
       <Modal
         isOpen={isServiceModalOpen}
@@ -33,12 +62,8 @@ export const ContentTerm = () => {
       >
         <ContentTermModal
           onClose={() => setIsServiceModalOpen(false)}
-          title="이용약관 조항 편집"
-          initialTerms={serviceTerms}
-          onSave={(newTerms) => {
-            setServiceTerms(newTerms);
-            setIsServiceModalOpen(false);
-          }}
+          type="이용약관"
+          initialTerms={terms}
         />
       </Modal>
 
@@ -48,12 +73,28 @@ export const ContentTerm = () => {
       >
         <ContentTermModal
           onClose={() => setIsPrivacyModalOpen(false)}
-          title="개인정보처리방침 조항 편집"
-          initialTerms={privacyTerms}
-          onSave={(newTerms) => {
-            setPrivacyTerms(newTerms);
-            setIsPrivacyModalOpen(false);
-          }}
+          type="개인정보처리방침"
+          initialTerms={privacy}
+        />
+      </Modal>
+
+      <Modal
+        isOpen={isServiceAllModalOpen}
+        onClose={() => setIsServiceAllModalOpen(false)}
+      >
+        <ModalAllTerm
+          onClose={() => setIsServiceAllModalOpen(false)}
+          type="이용약관"
+        />
+      </Modal>
+
+      <Modal
+        isOpen={isPrivacyAllModalOpen}
+        onClose={() => setIsPrivacyAllModalOpen(false)}
+      >
+        <ModalAllTerm
+          onClose={() => setIsPrivacyAllModalOpen(false)}
+          type="개인정보처리방침"
         />
       </Modal>
     </Container>
@@ -62,12 +103,13 @@ export const ContentTerm = () => {
 
 const Container = styled.div`
   display: flex;
-  flex-direction: column;
   gap: 12px;
 `;
 
 const Terms = styled.div`
+  width: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
@@ -89,12 +131,14 @@ const Terms = styled.div`
 
 const Version = styled.div`
   padding: 16px 0px;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   border-radius: 8px;
   background: ${({ theme }) => theme.colors.gray200};
+  cursor: pointer;
 
   color: ${({ theme }) => theme.colors.gray800};
   font-size: ${({ theme }) => theme.font.fontSize.body18};

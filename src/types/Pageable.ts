@@ -3,6 +3,10 @@ export interface PageableRequest {
   size?: number;
 }
 
+export interface TermPageRequest extends PageableRequest {
+  sort?: string[];
+}
+
 export interface BasePageResponse {
   currentPage: number;
   pageSize: number;
@@ -14,8 +18,4 @@ export interface BasePageResponse {
 
 export interface ReportPageResponse<T> extends BasePageResponse {
   reports: T[];
-}
-
-export interface LogPageResponse<T> extends BasePageResponse {
-  logs: T[];
 }

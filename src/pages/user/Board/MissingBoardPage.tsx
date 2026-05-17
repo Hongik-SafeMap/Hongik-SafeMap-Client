@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Down from '@/assets/icons/FilterDown.svg?react';
 import ResetIcon from '@/assets/icons/FilterReset.svg?react';
 import Plus from '@/assets/icons/PlusS.svg?react';
@@ -8,6 +8,7 @@ import { MISSING_BOARD_FILTER } from '@/constant/Filter';
 import { TitleHeader } from '@/components/common/TitleHeader';
 import { SearchBar } from '@/components/common/SearchBar';
 import { PostCard } from '@/components/user/board/PostCard';
+import { Pagination } from '@/components/common/Pagination';
 import { BottomSheetFilter } from '@/components/common/BottomSheetFilter';
 import { useHandleNavigate } from '@/hooks/useHandleNavigate';
 import type {
@@ -20,6 +21,7 @@ import type { MissingParams } from '@/types/Post';
 export const MissingBoardPage = () => {
   const { handleNavigate } = useHandleNavigate();
 
+  const [currentPage, setCurrentPage] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
 
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -29,20 +31,27 @@ export const MissingBoardPage = () => {
     status: ['전체'],
   });
 
-  const params: MissingParams = {
-    category:
-      appliedFilters.category[0] === '전체'
-        ? undefined
-        : (appliedFilters.category[0] as MissingCategory),
-    status:
-      appliedFilters.status[0] === '전체'
-        ? undefined
-        : (appliedFilters.status[0] as MissingStatus),
-    page: 0,
-    size: 10,
-  };
+  const params: MissingParams = useMemo(
+    () => ({
+      category:
+        appliedFilters.category[0] === '전체'
+          ? undefined
+          : (appliedFilters.category as MissingCategory[]),
+      status:
+        appliedFilters.status[0] === '전체'
+          ? undefined
+          : (appliedFilters.status as MissingStatus[]),
+      page: currentPage,
+      size: 6,
+    }),
+    [appliedFilters, currentPage],
+  );
 
   const { data } = useMissingList(params);
+
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [appliedFilters, searchTerm]);
 
   const handleOpenFilter = (tabKey: string) => {
     setActiveTab(tabKey);
@@ -88,9 +97,14 @@ export const MissingBoardPage = () => {
 
       <FilterWrapper>
         {Object.entries(MISSING_BOARD_FILTER).map(([key, value]) => {
-          const selectedValue = appliedFilters[key as keyof FilterState][0];
-          const displayLabel =
-            selectedValue === '전체' ? value.tabLabel : selectedValue;
+          const selectedValues = appliedFilters[key as keyof FilterState];
+          let displayLabel = value.tabLabel;
+          if (!selectedValues.includes('전체')) {
+            displayLabel =
+              selectedValues.length > 1
+                ? `${selectedValues[0]} 외 ${selectedValues.length - 1}`
+                : selectedValues[0];
+          }
 
           return (
             <Filter key={key} onClick={() => handleOpenFilter(key)}>
@@ -109,6 +123,19 @@ export const MissingBoardPage = () => {
           <PostCard key={post.id} post={post} />
         ))}
       </PostWrapper>
+
+      {data && data.totalPages > 0 && (
+        <Pagination
+          currentPage={data.currentPage}
+          totalPages={data.totalPages}
+          onPageChange={(page) => {
+            setCurrentPage(page);
+            window.scrollTo(0, 0);
+          }}
+          isFirst={data.first}
+          isLast={data.last}
+        />
+      )}
 
       <BottomSheetFilter
         height="348px"
@@ -141,6 +168,15 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 13px;
+
+  .pagination {
+    // position: fixed;
+    // bottom: 148px;
+    // left: 50%;
+    // transform: translateX(-50%);
+
+    padding: 12px 0px;
+  }
 `;
 
 const FilterWrapper = styled.div`
@@ -176,7 +212,6 @@ const Reset = styled.div`
 const PostWrapper = styled.div`
   display: grid;
   gap: 8px;
-  // align-items: start;
 
   grid-template-columns: repeat(1, 1fr);
 

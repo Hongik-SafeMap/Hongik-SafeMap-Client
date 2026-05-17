@@ -1,12 +1,18 @@
 import styled from 'styled-components';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Map, MapMarker, MarkerClusterer } from 'react-kakao-maps-sdk';
+import {
+  CustomOverlayMap,
+  Map,
+  MapMarker,
+  MarkerClusterer,
+} from 'react-kakao-maps-sdk';
 import Position from '@/assets/icons/PositionXS.svg?react';
 import Down from '@/assets/icons/FilterDown.svg?react';
 import ResetIcon from '@/assets/icons/FilterReset.svg?react';
 import { useReportClusters, useReportGroupDetail } from '@/api/report';
 import { useDisasterType } from '@/api/disasterType';
 import { HOME_FILTER } from '@/constant/Filter';
+import { useMapContext } from '@/contexts/MapContext';
 import { TitleHeader } from '@/components/common/TitleHeader';
 import { CheckBox } from '@/components/common/CheckBox';
 import { BottomSheetReport } from '@/components/common/BottomSheetReport';
@@ -20,7 +26,13 @@ export const UserHomePage = () => {
   const { handleNavigate } = useHandleNavigate();
   const { latitude, longitude } = useCurrentLocation();
 
-  const [mapCenter, setMapCenter] = useState({ lat: latitude, lng: longitude });
+  const { lastCenter, setLastCenter, lastLevel, setLastLevel } =
+    useMapContext();
+
+  const [mapCenter, setMapCenter] = useState(() => {
+    if (lastCenter) return lastCenter;
+    return { lat: latitude, lng: longitude };
+  });
   const [selectedGroupId, setSelectedGroupId] = useState<number | null>();
   const [isReportSheetOpen, setIsReportSheetOpen] = useState(false);
 
@@ -33,9 +45,10 @@ export const UserHomePage = () => {
   const [activeTab, setActiveTab] = useState<string>('disasterType');
 
   const params: DisasterGroupParams = useMemo(() => {
+    console.log(mapCenter.lat, mapCenter.lng);
     return {
-      latitude,
-      longitude,
+      latitude: mapCenter.lat,
+      longitude: mapCenter.lng,
       disasterTypesId: filters.disasterType.includes('전체')
         ? undefined
         : disasterTypes
@@ -44,29 +57,38 @@ export const UserHomePage = () => {
       riskLevels: filters.riskLevel.includes('전체')
         ? undefined
         : (filters.riskLevel as RiskLevel[]),
+      isActive: false,
     };
-  }, [latitude, longitude, filters, disasterTypes]);
+  }, [mapCenter, filters, disasterTypes]);
 
   const { data: clusters } = useReportClusters(params);
   const { data: groupDetail } = useReportGroupDetail(selectedGroupId!);
 
-  const [currentLevel, setCurrentLevel] = useState(3);
+  const [currentLevel, setCurrentLevel] = useState(lastLevel);
   const clustererRef = useRef<kakao.maps.MarkerClusterer | null>(null);
   const [showCluster, setShowCluster] = useState(false);
   // const [showHeatmap, setShowHeatmap] = useState(false);
 
   const handleMoveToCurrentLocation = () => {
-    setMapCenter({
-      lat: latitude,
-      lng: longitude,
-    });
+    if (latitude && longitude) {
+      setMapCenter({
+        lat: latitude,
+        lng: longitude,
+      });
+      setLastCenter({
+        lat: latitude,
+        lng: longitude,
+      });
+    }
   };
 
   useEffect(() => {
-    if (latitude && longitude) {
-      setMapCenter({ lat: latitude, lng: longitude });
+    if (!lastCenter && latitude && longitude) {
+      const initialLoc = { lat: latitude, lng: longitude };
+      setMapCenter(initialLoc);
+      setLastCenter(initialLoc);
     }
-  }, [latitude, longitude]);
+  }, [latitude, longitude, lastCenter, setLastCenter]);
 
   useEffect(() => {
     if (clustererRef.current) {
@@ -89,20 +111,12 @@ export const UserHomePage = () => {
         ? Number(firstMarker.getTitle())
         : null;
 
-    if (level >= 5 && !showCluster) {
+    if (level >= 4 && !showCluster) {
       const center = cluster.getCenter();
       map.setCenter(center);
       map.setLevel(level - 1, { animate: true });
     } else {
       if (groupId) handleGroupClick(groupId);
-    }
-  };
-
-  const handleMarkerClick = (group: DisasterGroup) => {
-    if (currentLevel <= 2) {
-      handleNavigate(`/reports/${group.id}`);
-    } else {
-      handleGroupClick(group.id);
     }
   };
 
@@ -150,6 +164,49 @@ export const UserHomePage = () => {
   const handleApplyFilter = (newFilters: FilterState) => {
     setFilters(newFilters);
     setIsFilterOpen(false);
+  };
+
+  const RISK_COLORS = {
+    긴급: '#D4182E',
+    높음: '#E57482',
+    보통: '#EEA3AB',
+    낮음: '#F6D1D5',
+  };
+
+  const BORDER_COLOR = {
+    긴급: '#AA1325',
+    높음: '#DD4658',
+    보통: '#E57482',
+    낮음: '#EEA3AB',
+  };
+
+  const CustomMarker = ({
+    loc,
+    iconUrl,
+    onClick,
+  }: {
+    loc: any;
+    iconUrl: string;
+    onClick: () => void;
+  }) => {
+    return (
+      <CustomOverlayMap
+        position={{ lat: loc.centerLatitude, lng: loc.centerLongitude }}
+      >
+        <MarkerContainer
+          color={RISK_COLORS[loc.latestRiskLevel as keyof typeof RISK_COLORS]}
+          border={
+            BORDER_COLOR[loc.latestRiskLevel as keyof typeof BORDER_COLOR]
+          }
+          onClick={(e: React.MouseEvent) => {
+            e.stopPropagation();
+            onClick();
+          }}
+        >
+          <img src={iconUrl} alt="disaster-icon" />
+        </MarkerContainer>
+      </CustomOverlayMap>
+    );
   };
 
   return (
@@ -211,9 +268,16 @@ export const UserHomePage = () => {
           center={mapCenter}
           style={{ width: '100%', height: '100%' }}
           level={currentLevel}
-          onZoomChanged={(map) => setCurrentLevel(map.getLevel())}
+          onZoomChanged={(map) => {
+            setCurrentLevel(map.getLevel());
+            setLastLevel(map.getLevel());
+          }}
           onIdle={(map) => {
             setMapCenter({
+              lat: map.getCenter().getLat(),
+              lng: map.getCenter().getLng(),
+            });
+            setLastCenter({
               lat: map.getCenter().getLat(),
               lng: map.getCenter().getLng(),
             });
@@ -228,31 +292,37 @@ export const UserHomePage = () => {
               clustererRef.current = clusterer;
             }}
             onClusterclick={handleClusterClick}
-            calculator={[10, 100]}
+            calculator={[2, 5]}
             styles={[
               clusterVariant(36, '#EEA3AB', '#E57482'),
               clusterVariant(46, '#DD4658', '#D4182E'),
               clusterVariant(56, '#D4182E', '#AA1325'),
             ]}
           >
-            {clusters?.map((group) => {
-              const shouldHideIcon = showCluster || currentLevel >= 4;
+            {clusters?.map((group, index) => {
+              if (showCluster || currentLevel >= 4) {
+                return (
+                  <MapMarker
+                    key={group.id}
+                    position={{
+                      lat: group.centerLatitude,
+                      lng: group.centerLongitude,
+                    }}
+                    title={String(group.id)}
+                    image={{
+                      src: '',
+                      size: { width: 0, height: 0 },
+                    }}
+                  />
+                );
+              }
 
               return (
-                <MapMarker
-                  key={group.id}
-                  position={{
-                    lat: group.centerLatitude,
-                    lng: group.centerLongitude,
-                  }}
-                  title={String(group.id)}
-                  image={{
-                    src: shouldHideIcon ? '' : group.disasterType.iconUrl,
-                    size: shouldHideIcon
-                      ? { width: 0, height: 0 }
-                      : { width: 36, height: 36 },
-                  }}
-                  onClick={() => handleMarkerClick(group)}
+                <CustomMarker
+                  key={index}
+                  loc={group}
+                  iconUrl={group.disasterType.iconUrl}
+                  onClick={() => handleGroupClick(group.id)}
                 />
               );
             })}
@@ -270,6 +340,7 @@ export const UserHomePage = () => {
         initialValue={filters}
         defaultTab={activeTab}
         onApply={handleApplyFilter}
+        buttonBottom="56px"
       />
 
       {groupDetail && (
@@ -287,12 +358,18 @@ export const UserHomePage = () => {
 };
 
 const Container = styled.div`
-  padding: 56px 0px;
-  height: calc(100vh - 112px);
+  position: fixed;
+  top: 56px;
+  bottom: 56px;
+  left: 0;
+  right: 0;
+
+  display: flex;
+  flex-direction: column;
 
   .map {
+    flex: 1;
     width: 100%;
-    height: 100%;
     position: relative;
   }
 `;
@@ -307,9 +384,27 @@ const MapOptions = styled.div`
   border-radius: 8px;
 
   position: absolute;
-  top: 72px;
+  top: 8px;
   left: 8px;
   z-index: 10;
+`;
+
+const MarkerContainer = styled.div<{ color: string; border: string }>`
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: ${({ color }) => color};
+  border-radius: 50%;
+  border: 2px solid ${({ border }) => border};
+
+  img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+  }
 `;
 
 const LocationReset = styled(Position)`
@@ -331,13 +426,8 @@ const FilterWrapper = styled.div`
   padding: 12px 20px;
   display: flex;
   gap: 8px;
-
   background: ${({ theme }) => theme.colors.white};
-  position: absolute;
-  top: 54px;
-  left: 0;
-  right: 0;
-  z-index: 10;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.gray300};
 `;
 
 const Filter = styled.div<{ isSelected: boolean }>`

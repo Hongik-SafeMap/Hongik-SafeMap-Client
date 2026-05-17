@@ -1,5 +1,5 @@
 import { styled } from 'styled-components';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { handleAllowNotification } from '@/firebase';
 import Logo from '@/assets/icons/Logo.svg?react';
 import Hide from '@/assets/icons/HideS.svg?react';
@@ -19,14 +19,27 @@ export const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [retryTimer, setRetryTimer] = useState(0);
 
   const toggleShowPassword = () => {
     setShowPassword((prev) => !prev);
   };
 
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (retryTimer > 0) {
+      timer = setInterval(() => {
+        setRetryTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [retryTimer]);
+
   const { mutate: login } = useGeneralLoginMutation();
 
   const handleLoginClick = async () => {
+    if (retryTimer > 0) return;
+
     const fcmToken = (await handleAllowNotification()) || '';
 
     const loginRequest: GeneralLoginRequest = {
@@ -34,7 +47,9 @@ export const LoginPage = () => {
       password,
       fcmToken,
     };
-    console.log(loginRequest);
+
+    // console.log(loginRequest);
+
     login(loginRequest, {
       onSuccess: (response) => {
         if (response.status === 'ADMIN') {
@@ -46,7 +61,12 @@ export const LoginPage = () => {
         setEmail('');
         setPassword('');
       },
-      onError: () => {
+      onError: (error: any) => {
+        if (error.response?.status === 429) {
+          alert('로그인 시도가 너무 많습니다. 5분 후에 다시 시도해주세요.');
+          setRetryTimer(300);
+          return;
+        }
         alert('로그인 실패! 이메일과 비밀번호를 확인해주세요.');
       },
     });
@@ -55,6 +75,9 @@ export const LoginPage = () => {
   // const handleSocialLogin = (provider: 'kakao' | 'naver') => {
   //   window.location.href = `https://your-backend-server.com/oauth2/authorization/${provider}`;
   // };
+
+  const isDisabled =
+    retryTimer > 0 || email.length === 0 || password.length === 0;
 
   return (
     <Container>
@@ -75,7 +98,8 @@ export const LoginPage = () => {
           onClick={toggleShowPassword}
         />
         <Button
-          variant="gray"
+          variant={isDisabled ? 'gray' : 'red'}
+          disabled={isDisabled}
           style={{ marginTop: '16px' }}
           onClick={handleLoginClick}
         >
