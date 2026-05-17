@@ -101,6 +101,18 @@ export const MyPage = () => {
       <Border />
 
       <MenuWrapper>
+        <div className="title">알림</div>
+        <div
+          className="menu"
+          onClick={() => handleNavigate('/user/my/notification')}
+        >
+          재난 알림 설정
+        </div>
+      </MenuWrapper>
+
+      <Border />
+
+      <MenuWrapper>
         <div className="title">이용약관</div>
         <div className="menu" onClick={() => setIsTermsModalOpen(true)}>
           서비스 이용약관

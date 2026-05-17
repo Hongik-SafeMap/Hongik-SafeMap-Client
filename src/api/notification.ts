@@ -27,7 +27,7 @@ export const useAdminUpdateNotification = () => {
 
   return useMutation({
     mutationFn: async (request: NotificationPreferenceRequest) => {
-      const response = await axiosInstance.patch(
+      const response = await axiosInstance.put(
         '/admin/notifications/preferences',
         request,
       );
@@ -70,7 +70,7 @@ export const useUpdateNotificationRead = () => {
 
   return useMutation({
     mutationFn: async () => {
-      const response = await axiosInstance.patch('/notifications/read');
+      const response = await axiosInstance.put('/notifications/read');
       return response.data;
     },
     onSuccess: () => {
