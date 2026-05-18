@@ -64,6 +64,10 @@ export const LoginPage = () => {
       onError: (error: any) => {
         if (error.response?.status === 429) {
           alert('로그인 시도가 너무 많습니다. 5분 후에 다시 시도해주세요.');
+          localStorage.setItem(
+            'login_retry_until',
+            (Date.now() + 300 * 1000).toString(),
+          );
           setRetryTimer(300);
           return;
         }
@@ -71,6 +75,21 @@ export const LoginPage = () => {
       },
     });
   };
+
+  useEffect(() => {
+    const banUntil = localStorage.getItem('login_retry_until');
+    if (banUntil) {
+      const remainingTime = Math.ceil(
+        (parseInt(banUntil, 10) - Date.now()) / 1000,
+      );
+
+      if (remainingTime > 0) {
+        setRetryTimer(remainingTime);
+      } else {
+        localStorage.removeItem('login_retry_until');
+      }
+    }
+  }, []);
 
   const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${import.meta.env.VITE_APP_KAKAO_CLIENT_ID}&redirect_uri=${import.meta.env.VITE_KAKAO_REDIRECT_URI}&response_type=code`;
   const NAVER_AUTH_URL = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${import.meta.env.VITE_APP_NAVER_CLIENT_ID}&redirect_uri=${import.meta.env.VITE_NAVER_REDIRECT_URI}&state=RE_STATE_1234`;
