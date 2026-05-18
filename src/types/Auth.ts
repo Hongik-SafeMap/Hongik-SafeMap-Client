@@ -1,4 +1,4 @@
-export type LoginType = '일반' | '카카오' | '구글';
+export type LoginType = '일반' | '카카오' | '네이버';
 
 export type MemberStatus = 'USER' | 'ADMIN';
 

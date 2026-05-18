@@ -72,9 +72,16 @@ export const LoginPage = () => {
     });
   };
 
-  // const handleSocialLogin = (provider: 'kakao' | 'naver') => {
-  //   window.location.href = `https://your-backend-server.com/oauth2/authorization/${provider}`;
-  // };
+  const KAKAO_AUTH_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${import.meta.env.VITE_APP_KAKAO_REST_API_KEY}&redirect_uri=${import.meta.env.VITE_KAKAO_REDIRECT_URI}&response_type=code`;
+  const NAVER_AUTH_URL = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${import.meta.env.VITE_APP_NAVER_CLIENT_ID}&redirect_uri=${import.meta.env.VITE_NAVER_REDIRECT_URI}&state=RE_STATE_1234`;
+
+  const handleSocialLogin = (provider: 'kakao' | 'naver') => {
+    if (provider === 'kakao') {
+      window.location.href = KAKAO_AUTH_URL;
+    } else if (provider === 'naver') {
+      window.location.href = NAVER_AUTH_URL;
+    }
+  };
 
   const isDisabled =
     retryTimer > 0 || email.length === 0 || password.length === 0;
@@ -115,8 +122,8 @@ export const LoginPage = () => {
         </div>
 
         <div className="social">
-          <Kakao />
-          <Naver />
+          <Kakao onClick={() => handleSocialLogin('kakao')} />
+          <Naver onClick={() => handleSocialLogin('naver')} />
         </div>
 
         <div className="signup" onClick={() => handleNavigate('/signup')}>
