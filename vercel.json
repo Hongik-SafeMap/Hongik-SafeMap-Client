@@ -1,4 +1,10 @@
 {
   "routes": [{ "src": "/[^.]+", "dest": "/", "status": 200 }],
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" },
+    {
+      "source": "/naver-api/:path*",
+      "destination": "https://nid.naver.com/:path*"
+    }
+  ]
 }
