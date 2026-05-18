@@ -96,6 +96,14 @@ export const SNSCallbackPage = () => {
           '소셜 로그인 에러 상세:',
           error.response?.data || error.message,
         );
+        if (error.response?.status === 429) {
+          alert('로그인 시도가 너무 많습니다. 5분 후에 다시 시도해주세요.');
+          const banUntil = Date.now() + 300 * 1000;
+          localStorage.setItem('login_retry_until', banUntil.toString());
+
+          navigate('/login');
+          return;
+        }
         alert('소셜 로그인에 실패했습니다.');
         navigate('/login');
       }
