@@ -1,4 +1,5 @@
 import type React from 'react';
+import { forwardRef } from 'react';
 import styled from 'styled-components';
 
 interface InputBoxProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -15,41 +16,45 @@ interface InputBoxProps extends React.InputHTMLAttributes<HTMLInputElement> {
   onClick?: () => void;
 }
 
-export const InputBox = ({
-  title,
+export const InputBox = forwardRef<HTMLInputElement, InputBoxProps>(
+  (
+    {
+      title,
+      width = '100%',
+      height = '44px',
+      placeholder,
+      value,
+      icon,
+      iconBottom = '10px',
+      iconRight = '16px',
+      onClick,
+      ...props
+    },
+    ref,
+  ) => {
+    return (
+      <InputWrapper bottom={iconBottom} right={iconRight}>
+        {title && <Title className="input">{title}</Title>}
 
-  width = '100%',
-  height = '44px',
-  placeholder,
-  value,
+        <Input
+          width={width}
+          height={height}
+          hasIcon={!!icon}
+          placeholder={placeholder}
+          value={value}
+          ref={ref}
+          {...props}
+        />
 
-  icon,
-  iconBottom = '10px',
-  iconRight = '16px',
-  onClick: onClick,
-
-  ...props
-}: InputBoxProps) => {
-  return (
-    <InputWrapper bottom={iconBottom} right={iconRight}>
-      {title && <Title className="input">{title}</Title>}
-
-      <Input
-        width={width}
-        height={height}
-        placeholder={placeholder}
-        value={value}
-        {...props}
-      />
-
-      {icon && (
-        <div className="icon" onClick={onClick}>
-          {icon}
-        </div>
-      )}
-    </InputWrapper>
-  );
-};
+        {icon && (
+          <div className="icon" onClick={onClick}>
+            {icon}
+          </div>
+        )}
+      </InputWrapper>
+    );
+  },
+);
 
 const InputWrapper = styled.div<{ bottom: string; right: string }>`
   display: flex;
@@ -75,11 +80,11 @@ const Title = styled.div`
   font-weight: ${({ theme }) => theme.font.fontWeight.medium};
 `;
 
-const Input = styled.input<{ width: string; height: string }>`
+const Input = styled.input<{ width: string; height: string; hasIcon: boolean }>`
   box-sizing: border-box;
   width: ${({ width }) => width};
   height: ${({ height }) => height};
-  padding: 10px 16px;
+  padding: ${({ hasIcon }) => (hasIcon ? '10px 48px 10px 16px' : '10px 16px')};
   border-radius: 8px;
   background: ${({ theme }) => theme.colors.gray300};
 

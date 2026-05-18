@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import More from '@/assets/icons/MoreVertS.svg?react';
-import Edit from '@/assets/icons/WriteS.svg?react';
+// import Edit from '@/assets/icons/WriteS.svg?react';
 import Delete from '@/assets/icons/TrashCan.svg?react';
 import { useDeletePostMutation } from '@/api/board';
 import { Toast } from '@/components/common/Toast';
@@ -29,9 +29,9 @@ export const DropdownBoard = ({ path }: DropdownBoardProps) => {
     setTimeout(() => setToastMessage(null), 1500);
   };
 
-  const handleEdit = () => {
-    handleNavigate(`/user/${path}/edit/${id}`);
-  };
+  // const handleEdit = () => {
+  //   handleNavigate(`/user/${path}/edit/${id}`);
+  // };
 
   const { mutate: deletePost } = useDeletePostMutation(path);
 
@@ -64,11 +64,11 @@ export const DropdownBoard = ({ path }: DropdownBoardProps) => {
 
       {showOptions && (
         <DropdownOptionWrapper>
-          <DropdownOption onClick={handleEdit} isDelete={false}>
+          {/* <DropdownOption onClick={handleEdit} isDelete={false}>
             수정하기 <Edit />
           </DropdownOption>
 
-          <div className="border" />
+          <div className="border" /> */}
 
           <DropdownOption onClick={() => setIsModalOpen(true)} isDelete={true}>
             삭제하기 <Delete />

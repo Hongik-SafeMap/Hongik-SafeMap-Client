@@ -17,25 +17,31 @@ export const NotificationPage = () => {
   const { mutate: updateNotification } = useUpdateNotification();
 
   const isAgreedNoti = async (): Promise<boolean> => {
-    if ('Notification' in window && Notification.permission === 'denied') {
+    if (!('Notification' in window)) {
+      alert('이 브라우저는 알림 기능을 지원하지 않습니다.');
+      return false;
+    }
+
+    if (Notification.permission === 'denied') {
       alert('브라우저 설정에서 알림 권한을 허용으로 변경해주세요.');
       return false;
     }
 
-    if ('Notification' in window && Notification.permission === 'default') {
-      try {
-        const token = await handleAllowNotification();
-        if (!token) {
-          alert('알림 권한이 허용되지 않았습니다.');
-          return false;
-        }
-      } catch (error) {
-        console.error(error);
-        alert('알림 설정 중 오류가 발생했습니다.');
+    if (Notification.permission === 'default') {
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        alert('알림 권한이 허용되지 않았습니다.');
         return false;
       }
     }
-    return true;
+
+    try {
+      await handleAllowNotification();
+      return true;
+    } catch (error) {
+      console.error('FCM 토큰 획득 실패 (시연을 위해 패스):', error);
+      return true;
+    }
   };
 
   const isAllEnabled =

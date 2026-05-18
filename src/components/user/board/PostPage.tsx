@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Clock from '@/assets/icons/ClockXS.svg?react';
 import Position from '@/assets/icons/PositionXS.svg?react';
 import Pencil from '@/assets/icons/WriteS.svg?react';
@@ -74,6 +74,7 @@ export const PostPage = ({ statusOptions, post, comments }: PostCardProps) => {
   };
 
   const [comment, setComment] = useState('');
+  const commentInputRef = useRef<HTMLInputElement>(null);
 
   const type = isMissingPost(post) ? undefined : post.type;
   const location = isMissingPost(post) ? post.currentLocation : post.location;
@@ -89,6 +90,16 @@ export const PostPage = ({ statusOptions, post, comments }: PostCardProps) => {
     isMissingPost(post) ? 'missing' : 'resource',
     post.id,
   );
+
+  const handleFocusCommentInput = () => {
+    if (commentInputRef.current) {
+      commentInputRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+      commentInputRef.current.focus();
+    }
+  };
 
   const handleCommentClick = async () => {
     if (comment.length > 0) {
@@ -159,10 +170,12 @@ export const PostPage = ({ statusOptions, post, comments }: PostCardProps) => {
 
         {isMissingPost(post) && (
           <MissingWrapper>
-            <div className="info">
-              <div className="left">나이/연령</div>
-              <div className="right">{post.age}</div>
-            </div>
+            {post.age && (
+              <div className="info">
+                <div className="left">나이/연령</div>
+                <div className="right">{post.age}</div>
+              </div>
+            )}
             <div className="info">
               <div className="left">특징</div>
               <div className="right">{post.characteristic}</div>
@@ -196,7 +209,7 @@ export const PostPage = ({ statusOptions, post, comments }: PostCardProps) => {
               아직 댓글이 없습니다.
               <br />첫 댓글을 작성해보세요!
             </div>
-            <Button variant="white">
+            <Button variant="white" onClick={handleFocusCommentInput}>
               <Pencil />
               <span>댓글 쓰기</span>
             </Button>
@@ -222,6 +235,7 @@ export const PostPage = ({ statusOptions, post, comments }: PostCardProps) => {
 
       <Bottom>
         <InputBox
+          ref={commentInputRef}
           placeholder="댓글을 입력하세요"
           value={comment}
           onChange={(e) => setComment(e.target.value)}

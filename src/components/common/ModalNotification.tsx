@@ -37,7 +37,7 @@ export const ModalNotification = ({ onClose }: ModalProps) => {
         showToast('알림 허용이 완료되었습니다.');
       } else {
         onClose();
-        alert('알림 권한이 거부되었습니다.');
+        alert('토큰을 가져오지 못했습니다. 알림 권한이 거부되었습니다.');
       }
     } catch (err) {
       console.error(err);
