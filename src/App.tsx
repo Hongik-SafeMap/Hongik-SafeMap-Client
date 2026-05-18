@@ -8,6 +8,7 @@ import { ModalNotification } from '@/components/common/ModalNotification';
 import { ModalInstall } from '@/components/common/ModalInstall';
 import { SplashPage } from '@/pages/login/SplashPage';
 import { LoginPage } from '@/pages/login/LoginPage';
+import { SNSCallbackPage } from '@/pages/login/SNSCallbackPage';
 import { SignupPage } from '@/pages/signup/SignupPage';
 import { UserRoute } from '@/route/UserRoute';
 import { AdminRoute } from '@/route/AdminRoute';
@@ -55,6 +56,7 @@ function App() {
     <>
       <Routes>
         <Route path="/" element={<SplashPage />} />
+        <Route path="/auth/:provider/callback" element={<SNSCallbackPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
 

@@ -45,6 +45,12 @@ export const ReportSection = ({ report }: ReportSectionProps) => {
               블라인드
             </Tag>
           )}
+
+          {report.aiAnalysis.trustScore && (
+            <Tag variant={report.aiAnalysis.trustScore >= 75 ? 'black' : 'red'}>
+              {report.aiAnalysis.trustScore}점
+            </Tag>
+          )}
         </div>
       </div>
 
@@ -79,6 +85,23 @@ export const ReportSection = ({ report }: ReportSectionProps) => {
           <div className="count">{report.accusationCount}</div>
         </div>
       </ReviewWrapper>
+
+      {report.aiAnalysis.trustScore && (
+        <ReviewWrapper>
+          <div className="rating">
+            <div className="option">AI 신뢰도 점수</div>
+            <div
+              className="count"
+              style={{
+                color:
+                  report.aiAnalysis.trustScore >= 75 ? '#1A1C20' : '#D4182E',
+              }}
+            >
+              {report.aiAnalysis.trustScore}점
+            </div>
+          </div>
+        </ReviewWrapper>
+      )}
     </ReportWrapper>
   );
 };
@@ -134,11 +157,12 @@ const ReviewWrapper = styled.div`
 
   .divider {
     width: 1px;
-    height: 100%;
+    height: 30px;
     background: ${({ theme }) => theme.colors.gray400};
   }
 
   .option {
+    margin-top: 1px;
     color: ${({ theme }) => theme.colors.gray700};
     font-size: ${({ theme }) => theme.font.fontSize.detail12};
     font-weight: ${({ theme }) => theme.font.fontWeight.medium};
