@@ -24,6 +24,17 @@ export interface AdminDashboardResponse {
 }
 
 // ===================== 제보 검토 =====================
+export interface AIAnalysis {
+  aiGeneratedProbability: number;
+  realProbability: number;
+  aiPrediction: string;
+  informativeProbability: number;
+  notInformativeProbability: number;
+  informativePrediction: string;
+  trustScore: number;
+  status: string;
+}
+
 export interface AdminReport {
   reportId: number;
   disasterType: DisasterType;
@@ -33,6 +44,7 @@ export interface AdminReport {
   helpfulCount: number;
   notHelpfulCount: number;
   accusationCount: number;
+  aiAnalysis: AIAnalysis;
 }
 
 export interface ReportStatusRequest {
